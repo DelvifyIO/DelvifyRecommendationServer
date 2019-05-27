@@ -1,0 +1,36 @@
+{
+  "name": "delvifyrecommendation",
+  "version": "0.0.0",
+  "description": "<Description about your application>",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "nodemon --exec babel-node src -d dist",
+    "start": "npm run build && nodemon dist/index.js",
+    "prod": "node dist/index.js",
+    "seed": "sequelize db:seed:all && seed --db-name delvify --drop-database ./src/mongo/seeders"
+  },
+  "dependencies": {
+    "bluebird": "^3.5.4",
+    "body-parser": "^1.19.0",
+    "dotenv": "^8.0.0",
+    "express": "^4.16.4",
+    "express-jwt": "^5.3.1",
+    "lodash": "^4.17.11",
+    "method-override": "^3.0.0",
+    "moment": "^2.24.0",
+    "mongoose": "^5.5.10",
+    "mysql2": "^1.6.5",
+    "sequelize": "^5.8.5",
+    "validator": "^11.0.0"
+  },
+  "author": "",
+  "devDependencies": {
+    "@babel/cli": "^7.4.4",
+    "@babel/core": "^7.4.4",
+    "@babel/node": "^7.2.2",
+    "@babel/preset-env": "^7.4.4",
+    "@babel/register": "^7.4.4",
+    "sequelize-cli": "^5.4.0",
+    "mongo-seeding-cli": "^3.1.1"
+  }
+}
