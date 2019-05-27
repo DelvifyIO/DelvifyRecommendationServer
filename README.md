@@ -7,4 +7,5 @@
 ## Install and Run
 1. `npm install`
 2. `npm run seed`
-3. `npm run`
+3. add .env file
+4. `npm run`
