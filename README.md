@@ -8,5 +8,6 @@
 1. `npm install`
 2. add .env file
 3. `npm run start`
-3. `npm run`
-4. `npm run seed`
+4. `npm install --save-dev nodemon`
+4. `npm run`  # might not require
+5. `npm run seed`
