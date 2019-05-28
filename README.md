@@ -6,6 +6,6 @@
 
 ## Install and Run
 1. `npm install`
-2. `npm run seed`
-3. add .env file
-4. `npm run`
+2. add .env file
+3. `npm run`
+4. `npm run seed`
