@@ -12,7 +12,7 @@ module.exports = {
         isBetaMember: false
       }], {});
     */
-    return queryInterface.bulkInsert('categories', [{"name":"succulents"},{"name":"seasonal flowers"},{"name":"birthday flowers"},{"name":"premium flowers"},{"name":"get well flowers"},{"name":"new baby flowers"},{"name":"roses"},{"name":"flower bouquets"},{"name":"flower arrangements"},{"name":"plants"},{"name":"flower baskets"},{"name":"sympathy flowers"},{"name":"funeral flowers"},{"name":"gourmet hampers"},{"name":"luxe collection"}], {});
+    return queryInterface.bulkInsert('Categories', [{"name":"succulents"},{"name":"seasonal flowers"},{"name":"birthday flowers"},{"name":"premium flowers"},{"name":"get well flowers"},{"name":"new baby flowers"},{"name":"roses"},{"name":"flower bouquets"},{"name":"flower arrangements"},{"name":"plants"},{"name":"flower baskets"},{"name":"sympathy flowers"},{"name":"funeral flowers"},{"name":"gourmet hampers"},{"name":"luxe collection"}], {});
   },
 
   down: (queryInterface, Sequelize) => {
@@ -23,8 +23,8 @@ module.exports = {
       Example:
       return queryInterface.bulkDelete('People', null, {});
     */
-    const drop = queryInterface.dropTable('categories');
-    const create = queryInterface.createTable('categories', {
+    const drop = queryInterface.dropTable('Categories');
+    const create = queryInterface.createTable('Categories', {
       id: {
         type: Sequelize.INTEGER,
         allowNull: false,

@@ -13,7 +13,7 @@ module.exports = {
       }], {});
     */
 
-    return queryInterface.bulkInsert('currencies', [{
+    return queryInterface.bulkInsert('Currencies', [{
       name: 'USD',
       sign: '$',
     }], {});
@@ -27,6 +27,6 @@ module.exports = {
       Example:
       return queryInterface.bulkDelete('People', null, {});
     */
-    return queryInterface.bulkDelete('currencies', {name: {[Sequelize.Op.in]: ['USD']}}, {});
+    return queryInterface.bulkDelete('Currencies', {name: {[Sequelize.Op.in]: ['USD']}}, {});
   }
 };
