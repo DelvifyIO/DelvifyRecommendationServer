@@ -16,5 +16,5 @@ module.exports = function timestamp(schema) {
         }
         // Call the next function in the pre-save chain
         next()
-    })
+    });
 };

@@ -11,5 +11,6 @@ router.use(function(req, res, next) {
 
 router.get('/', controller.getUsers);
 router.post('/', controller.insertUser);
+router.get('/count', controller.getUserCount);
 
 module.exports = router;

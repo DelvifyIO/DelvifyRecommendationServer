@@ -1,13 +1,12 @@
 let mongoose = require('mongoose');
 
 let simItemsSchema = new mongoose.Schema({
-    sku: String,
+    pid: String,
     similarity: Number,
 });
 
 let similaritySchema = new mongoose.Schema({
-    pid: Number,
-    sku: String,
+    pid: String,
     sim_items: [simItemsSchema],
 });
 

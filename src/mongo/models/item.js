@@ -1,44 +1,32 @@
 let mongoose = require('mongoose');
+let timestampPlugin = require('./plugins/timestamp');
 
-let statSchema = new mongoose.Schema({
-    display: {
-        type: Number,
-        default: 0,
+let engagementSchema = new mongoose.Schema({
+    type: {
+        type: String,
+        enum: ['DISPLAY', 'SHOW_OVERLAY', 'CLICK', 'ADD_CART_FROM_WIDGET', 'ADD_CART_FROM_DETAIL', 'PURCHASE'],
     },
-    enlarge: {
-        type: Number,
-        default: 0,
+    location: {
+        type: String,
+        enum: ['HOME', 'PRODUCT_DETAILS', 'PRODUCT_DETAILS_FEATURED', 'CART'],
     },
-    click: {
-        type: Number,
-        default: 0,
+    source: {
+      type: String,
+      enum: ['SIMILAR', 'MOST_POPULAR', 'LEAST_POPULAR', 'CUSTOM'],
     },
-    add_cart_from_detail: {
-        type: Number,
-        default: 0,
+    geo_location: String,
+    device: {
+        type: String,
+        enum: ['DESKTOP', 'MOBILE', 'TABLET'],
     },
-    add_cart_from_widget: {
-        type: Number,
-        default: 0,
-    },
-    purchase: {
-        type: Number,
-        default: 0,
-    }
+    uid: String,
 });
 
-statSchema.virtual('add_cart').get(function() {
-    return this.add_cart_from_detail + ' ' + this.add_cart_from_widget
-});
+engagementSchema.plugin(timestampPlugin);
 
 let itemSchema = new mongoose.Schema({
-    pid: {
-        type: Number,
-    },
-    sku: {
-        type: String,
-    },
-    stat: statSchema,
+    pid: mongoose.Mixed,
+    engagements: [engagementSchema],
 });
 
 export default mongoose.model('Item', itemSchema);

@@ -32,6 +32,18 @@ const getUsers = (req, res) => {
         });
 };
 
+const getUserCount = (req, res) => {
+    const where = _.pick(req.query, queries);
+
+    user.estimatedDocumentCount(where)
+        .then((result) => {
+            res.send({ count: result });
+        })
+        .catch(function (err) {
+            res.status(404).send(err.message);
+        });
+};
+
 const insertUser = (req, res) => {
     const { uid } = req.body;
     user.findOneAndUpdate(
@@ -51,4 +63,5 @@ const insertUser = (req, res) => {
 module.exports = {
     getUsers,
     insertUser,
+    getUserCount,
 };
