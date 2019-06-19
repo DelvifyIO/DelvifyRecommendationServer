@@ -11,5 +11,7 @@ router.use(function(req, res, next) {
 
 router.get('/', controller.getEngagements);
 router.post('/', controller.insertEngagement);
+router.get('/count', controller.getEngagementCount);
+router.get('/item', controller.getItemEngagement);
 
 module.exports = router;

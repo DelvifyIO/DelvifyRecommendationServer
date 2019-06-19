@@ -7,6 +7,8 @@ const paginations = ['limit', 'offset'];
 const getProducts = (req, res) => {
     if (req.query.sku) {
         return getProductBySku(req, res);
+    } else if (req.query.skus) {
+        return getProductBySkus(req, res);
     }
     const where = _.pick(req.query, queries);
     const pagination = _.pick(req.query, paginations);
@@ -16,7 +18,7 @@ const getProducts = (req, res) => {
 
     models.Product.findAndCountAll({
         where,
-        attributes: ['id', 'name', 'price', 'categoryId', 'currencyId'],
+        attributes: ['id', 'sku', 'name', 'price', 'categoryId', 'currencyId'],
         include: ['images', 'category', 'currency'],
         ...pagination,
     })
@@ -25,7 +27,7 @@ const getProducts = (req, res) => {
                 res.send(product);
             }
             else {
-                res.status(404);
+                res.status(404).send('Not found');
             }
         })
         .catch(function (err) {
@@ -42,7 +44,7 @@ const getProduct = (req, res) => {
                 res.send(product);
             }
             else {
-                res.status(404);
+                res.status(404).send('Not found');
             }
         })
         .catch(function (err) {
@@ -60,7 +62,25 @@ const getProductBySku = (req, res) => {
                 res.send(product);
             }
             else {
-                res.status(404);
+                res.status(404).send('Not found');
+            }
+        })
+        .catch(function (err) {
+            res.status(404).send(err.message);
+        });
+};
+
+const getProductBySkus = (req, res) => {
+    models.Product.findAll({
+        where: { sku: req.query.skus },
+        include: ['images', 'category', 'currency'],
+    })
+        .then(function (product) {
+            if (product) {
+                res.send(product);
+            }
+            else {
+                res.status(404).send('Not found');
             }
         })
         .catch(function (err) {

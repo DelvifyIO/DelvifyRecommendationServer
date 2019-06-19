@@ -27,60 +27,132 @@ const getOrders = (req, res) => {
         });
 };
 
+const getOrderAmount = (req, res) => {
+    const where = _.pick(req.query, queries);
+
+    order.aggregate([
+        { $project: {
+                total: { $multiply: ["$quantity", "$price"] }
+            }},
+        { $group: {
+                _id: null,
+                amount: { $sum: "$total" },
+            }},
+        { $project: {
+                _id: 0,
+                amount: '$amount',
+            }}
+    ])
+        .then((result) => {
+            res.send(result[0] || { amount: 0 });
+        })
+};
+
+const getTimeToPurchase = (req, res) => {
+    const where = _.pick(req.query, queries);
+
+    const getAerage = user.aggregate([
+        { $unwind: '$engagements' },
+        { $match: { 'engagements.purchaseAt': { $ne: null } }},
+        { $sort: { 'engagements.purchaseAt': -1 } },
+        { $project:
+            {
+                _id: 0,
+                purchaseAt: '$engagements.purchaseAt',
+                interval: { $subtract: [ '$engagements.purchaseAt',
+                        { $ifNull: [ '$engagements.clickAt', '$engagements.addAt' ] },
+                ]},
+                sum: { $sum: 1 },
+            }
+        },
+        { $group: {
+                _id: null,
+                sum: { $sum: '$sum' },
+                interval: { $sum: '$interval' }
+            } },
+        { $project:
+                {
+                    _id: 0,
+                    average: { $divide: ['$interval', '$sum'] }
+                }
+        },
+    ]);
+    const getLatestInterval = user.aggregate([
+        { $unwind: '$engagements' },
+        { $match: { 'engagements.purchaseAt': { $ne: null } }},
+        { $sort: { 'engagements.purchaseAt': -1 } },
+        { $limit : 5 },
+        { $project:
+            {
+                _id: 0,
+                interval: { $subtract: [ '$engagements.purchaseAt',
+                        { $ifNull: [ '$engagements.clickAt', '$engagements.addAt' ] },
+                    ]},
+            }
+        },
+    ]);
+
+    Promise.all([getAerage, getLatestInterval])
+        .then(([average, intervals]) => {
+            res.send({ average: average[0].average, intervals: intervals.map((interval) => interval.interval) });
+        }).catch(console.log);
+};
+
 const insertOrder = (req, res) => {
     const { oid, uid, items } = req.body;
-    const validItems = [];
     const twoHours = 2 * 60 * 60 *1000;
     const now = Date.now();
 
-    user.findOne({ uid })
-        .then((foundUser) => {
-            if (!foundUser) throw new Error('User not found');
-            items.forEach((item) => {
-                const { pid, sku } = item;
-                let engagement = foundUser.engagements.find((val) => {
-                    return (val.pid && val.pid == pid || val.sku && val.sku === sku) &&
-                    (!val.purchaseAt) &&
-                    (val.addAt || (now - (Date.parse(val.addAt)) <= twoHours))
-                });
-                if (engagement) {
-                    engagement.purchaseAt = new Date();
-                    validItems.push(item);
+    item.find({
+        pid: { $in: items.map(item => item.pid) }
+    })
+        .then((foundItems) => {
+            const promises = [];
+            foundItems.forEach((foundItem) => {
+                const engagements = foundItem.engagements;
+                const lastPurchaseIndex = _.findLastIndex(engagements, (engagement) => engagement.uid === uid &&engagement.type === 'PURCHASE');
+                const lastAddCartIndex = _.findLastIndex(engagements, (engagement) => engagement.uid === uid &&engagement.type.includes('ADD_CART'));
+                const lastClickIndex = _.findLastIndex(engagements, (engagement) => engagement.uid === uid &&engagement.type === 'CLICK');
+                const prevEngagement = lastClickIndex > -1 && (now - (Date.parse(engagements[lastClickIndex].createdAt)) <= twoHours) ? engagements[lastClickIndex] :
+                    (lastPurchaseIndex > -1 && lastAddCartIndex > -1 && lastAddCartIndex > lastPurchaseIndex) ||
+                    (lastPurchaseIndex <= -1 && lastAddCartIndex > -1) ? engagements[lastAddCartIndex] : null;
+                if (prevEngagement) {
+                    const purchaseItem = items.find((item) => item.pid == foundItem.pid);
+                    purchaseItem.isRecommended = true;
+                    promises.push(item.findOneAndUpdate(
+                        { pid: purchaseItem.pid },
+                        { $push: { engagements: {
+                            ...prevEngagement,
+                            type: 'PURCHASE',
+                            order: {
+                                oid,
+                                quantity: purchaseItem.quantity,
+                                value: purchaseItem.value,
+                                currency: purchaseItem.currency,
+                                exchangeRate: purchaseItem.exchangeRate,
+                        } } } },
+                        { new: true, upsert: true },
+                    ));
                 }
             });
-
-            const newOrders = [];
-            const pids = [];
-            const skus = [];
-
-            validItems.forEach((item) => {
-                newOrders.push({ oid, uid, ...item });
-                pids.push(item.pid);
-                skus.push(item.sku);
-            });
-            order.insertMany(newOrders)
-                .then((insertedOrders) => {
-                    res.send(insertedOrders);
+            Promise.all(promises)
+                .then(() => {
+                    const newOrder = new order();
+                    newOrder.oid = oid;
+                    newOrder.uid = uid;
+                    newOrder.items = items;
+                    return newOrder.save();
                 })
-                .catch((err) => {
-                    res.status(404).send(err.message);
-                });
-
-            item.updateMany(
-                { $or: [
-                        { $and: [{ pid: { $ne: null } }, { pid: { $in: pids } }] },
-                        { $and: [{ sku: { $ne: null } }, { sku: { $in: skus } }] },
-                    ] },
-                { $inc: { 'stat.purchase': 1 } },
-                { new: true, upsert: true },
-            ).catch(console.log);
-
-            return foundUser.save();
-        }).catch(console.log);
+                .then(() => res.status(200).send({}))
+                .catch(console.log);
+        })
+        .catch(console.log);
 };
 
 
 module.exports = {
     getOrders,
     insertOrder,
+    getOrderAmount,
+    getTimeToPurchase,
 };

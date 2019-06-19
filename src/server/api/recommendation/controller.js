@@ -1,29 +1,23 @@
 import express from 'express';
-import { similarity } from '../../../mongo/models';
+import { similarity, config } from '../../../mongo/models';
 
-const queries = ['pid', 'sku'];
 const paginations = ['limit', 'offset'];
 
 const getSimilarities = (req, res) => {
-    const where = _.pick(req.query, queries);
-    const action = where.pid || where.sku ?
-        similarity.findOne({
-            $or: [{ pid: parseInt(where.pid) }, { sku: where.sku }]
-        }) :
-        similarity.find(where);
+    const { pid } = req.params;
     const pagination = _.pick(req.query, paginations);
     _.each(_.keys(pagination), (key) => {
         pagination[key] = parseInt(pagination[key]);
     });
-    action
+    similarity.findOne({ pid })
         .skip(pagination.offset)
         .limit(pagination.limit)
         .then(function (similarities) {
             if (similarities) {
-                res.send(similarities);
+                res.send(similarities.sim_items.map(item => item.pid));
             }
             else {
-                res.status(404).send('Not found');
+                res.status(404).send({ message: 'Not found' });
             }
         })
         .catch(function (err) {
@@ -32,27 +26,17 @@ const getSimilarities = (req, res) => {
 };
 
 const getFeatured = (req, res) => {
-    const where = _.pick(req.query, queries);
     const pagination = _.pick(req.query, paginations);
     _.each(_.keys(pagination), (key) => {
         pagination[key] = parseInt(pagination[key]);
     });
-    similarity.count()
-        .then((count) => {
-            const random = Math.floor(Math.random() * count);
-            return similarity.findOne(where)
-                .skip(random)
-        })
-        .then(function (similarity) {
-            if (similarity) {
-                res.send(similarity);
-            }
-            else {
-                res.status(404).send('Not found');
-            }
+    config.findOne()
+        .sort({ createdAt: -1 })
+        .then((result) => {
+            return res.send(result.featuredItems || []);
         })
         .catch(function (err) {
-            res.status(404).send(err.message);
+            return res.status(404).send(err.message);
         });
 };
 

@@ -6,6 +6,10 @@ let engagementSchema = new mongoose.Schema({
     clickAt: Date,
     addAt: Date,
     purchaseAt: Date,
+    location:  {
+        type: String,
+        enum: ['HOME', 'PRODUCT_DETAILS', 'PRODUCT_DETAILS_FEATURED', 'CART'],
+    },
 });
 
 let userSchema = new mongoose.Schema({

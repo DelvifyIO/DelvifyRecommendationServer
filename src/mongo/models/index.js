@@ -4,9 +4,11 @@ import similarity from './similarity';
 import item from './item';
 import order from './order';
 import user from './user';
+import config from './config';
+import admin from './admin';
 
 const env       = process.env.NODE_ENV || 'development';
-const config    = require(__dirname + '/../../config/database.js')['mongoose'][env];
+const dbConfig  = require(__dirname + '/../../config/database.js')['mongoose'][env];
 
 let mongoose = require('mongoose');
 
@@ -16,8 +18,8 @@ class Database {
     }
     _connect() {
 
-        const server = config.server; // REPLACE WITH YOUR DB SERVER
-        const database = config.database;      // REPLACE WITH YOUR DB NAME
+        const server = dbConfig.server; // REPLACE WITH YOUR DB SERVER
+        const database = dbConfig.database;      // REPLACE WITH YOUR DB NAME
         mongoose.Promise = bluebird;
         mongoose.connect(`mongodb://${server}/${database}`, { useFindAndModify: false })
             .then(() => {
@@ -36,4 +38,6 @@ export {
     item,
     order,
     user,
+    config,
+    admin,
 }

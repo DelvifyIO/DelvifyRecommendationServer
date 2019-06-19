@@ -8,7 +8,8 @@ module.exports = function (app) {
         // do logging
         console.log('Entered first middleware.');
         res.header("Access-Control-Allow-Origin", "*");
-        res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+        res.header("Access-Control-Allow-Headers", "Origin, OPTIONS, X-Requested-With, Content-Type, Accept, timezone, Authorization",);
+        res.header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE",);
         next(); // make sure we go to the next routes and don't stop here
     });
 
@@ -25,6 +26,9 @@ module.exports = function (app) {
     app.use('/api/engagement', require('./api/engagement'));
     app.use('/api/recommendation', require('./api/recommendation'));
     app.use('/api/order', require('./api/order'));
+    app.use('/api/config', require('./api/config'));
+    app.use('/api/auth', require('./api/authentication'));
+    app.use('/api/admin', require('./api/admin'));
 
 
     // frontend routes =========================================================
