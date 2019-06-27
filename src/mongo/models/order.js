@@ -1,5 +1,5 @@
 let mongoose = require('mongoose');
-let timestampPlugin = require('./plugins/timestamp')
+let timestampPlugin = require('./plugins/timestamp');
 
 let itemSchema = new mongoose.Schema({
     pid: mongoose.Mixed,
@@ -7,6 +7,7 @@ let itemSchema = new mongoose.Schema({
     currency: String,
     quantity: Number,
     exchangeRate: Number,
+    isRecommended: Boolean,
 });
 
 let orderSchema = new mongoose.Schema({

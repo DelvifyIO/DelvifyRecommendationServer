@@ -28,7 +28,7 @@ const getCategoryProducts = (req, res) => {
             model: models.Product,
             as: 'products',
             limit: 1,
-            attributes: ['id'],
+            attributes: ['id', 'sku'],
             include: ['images'],
             order: [
                 [Sequelize.literal('RAND()')]

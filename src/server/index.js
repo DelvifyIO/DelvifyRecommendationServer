@@ -23,15 +23,12 @@ passportConfig(passport);
 app.use('/api', expressJwt({ secret: process.env.WEB_SECRET })
     .unless({ path: [
         '/api/auth/login',
-        '/api/category',
-        '/api/category/featured',
+        /^\/api\/category/,
         '/api/product',
         { url: '/api/config', methods: ['GET'] },
-        { url: '/api/engagement/*', methods: ['POST'] },
-        { url: '/api/order/*', methods: ['POST'] },
-        '/api/recommendation',
-        '/api/recommendation/featured',
-        '/api/recommendation/cart',
+        { url: '/api/engagement', methods: ['POST'] },
+        { url: '/api/order', methods: ['POST'] },
+        /^\/api\/recommendation\//,
     ]}));
 
 // routes ==================================================

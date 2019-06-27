@@ -38,7 +38,6 @@ const rootAdmin = new adminModel();
 
 rootAdmin.username = process.env.ROOT_ADMIN;
 rootAdmin.setPassword(process.env.ROOT_PASSWORD);
-
-adminModel.findOneAndUpdate({ username: 'root' }, rootAdmin, { new: true, upsert: true },);
+rootAdmin.save();
 
 export default adminModel;
