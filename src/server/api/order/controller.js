@@ -1,5 +1,5 @@
 var express = require('express');
-import { order, user, item } from '../../../mongo/models';
+import { order, user, item, engagement } from '../../../mongo/models';
 var moment = require('moment');
 
 const queries = ['oid', 'pid', 'sku', 'uid'];
@@ -99,39 +99,41 @@ const getTimeToPurchase = (req, res) => {
 };
 
 const insertOrder = (req, res) => {
-    const { oid, uid, items } = req.body;
+    const { oid, uid, order: items } = req.body;
     const twoHours = 2 * 60 * 60 *1000;
     const now = Date.now();
 
-    item.find({
-        pid: { $in: items.map(item => item.pid) }
+    engagement.find({
+        pid: { $in: items.map(item => item.pid) },
     })
-        .then((foundItems) => {
+        .then((foundEngagements) => {
             const promises = [];
-            foundItems.forEach((foundItem) => {
-                const engagements = foundItem.engagements;
-                const lastPurchaseIndex = _.findLastIndex(engagements, (engagement) => engagement.uid === uid &&engagement.type === 'PURCHASE');
-                const lastAddCartIndex = _.findLastIndex(engagements, (engagement) => engagement.uid === uid &&engagement.type.includes('ADD_CART'));
-                const lastClickIndex = _.findLastIndex(engagements, (engagement) => engagement.uid === uid &&engagement.type === 'CLICK');
+            const foundItems = _.groupBy(foundEngagements, (engagement) => engagement.pid);
+
+            Object.keys(foundItems).forEach((pid) => {
+                const engagements = foundItems[pid];
+                const lastPurchaseIndex = _.findLastIndex(engagements, (engagement) => engagement.uid === uid && engagement.type === 'PURCHASE');
+                const lastAddCartIndex = _.findLastIndex(engagements, (engagement) => engagement.uid === uid && engagement.type.includes('ADD_CART'));
+                const lastClickIndex = _.findLastIndex(engagements, (engagement) => engagement.uid === uid && engagement.type === 'CLICK');
                 const prevEngagement = lastClickIndex > -1 && (now - (Date.parse(engagements[lastClickIndex].createdAt)) <= twoHours) ? engagements[lastClickIndex] :
                     (lastPurchaseIndex > -1 && lastAddCartIndex > -1 && lastAddCartIndex > lastPurchaseIndex) ||
                     (lastPurchaseIndex <= -1 && lastAddCartIndex > -1) ? engagements[lastAddCartIndex] : null;
                 if (prevEngagement) {
-                    const purchaseItem = items.find((item) => item.pid == foundItem.pid);
+                    const purchaseItem = items.find((item) => item.pid == pid);
                     purchaseItem.isRecommended = true;
-                    promises.push(item.findOneAndUpdate(
-                        { pid: purchaseItem.pid },
-                        { $push: { engagements: {
+                    promises.push(engagement.create(
+                        {
                             ...prevEngagement,
+                            pid: purchaseItem.pid,
                             type: 'PURCHASE',
                             order: {
-                                oid,
+                                oid: oid,
                                 quantity: purchaseItem.quantity,
-                                value: purchaseItem.value,
+                                price: purchaseItem.price,
                                 currency: purchaseItem.currency,
                                 exchangeRate: purchaseItem.exchangeRate,
-                        } } } },
-                        { new: true, upsert: true },
+                            }
+                        }
                     ));
                 }
             });

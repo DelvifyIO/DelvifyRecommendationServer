@@ -3,9 +3,9 @@ import bluebird from 'bluebird';
 import similarity from './similarity';
 import item from './item';
 import order from './order';
-import user from './user';
 import config from './config';
 import admin from './admin';
+import engagement from './engagement';
 
 const env       = process.env.NODE_ENV || 'development';
 const dbConfig  = require(__dirname + '/../../config/database.js')['mongoose'][env];
@@ -37,7 +37,7 @@ export {
     similarity,
     item,
     order,
-    user,
     config,
     admin,
+    engagement,
 }
