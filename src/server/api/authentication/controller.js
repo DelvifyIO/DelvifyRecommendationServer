@@ -1,7 +1,8 @@
-import { admin } from '../../../mongo/models';
 import { authValidator } from '../../validation';
 
 const login = (req, res) => {
+    const { merchantid } = req.headers;
+    const {admin} = require(`../../../mongo/models/${merchantid}`);
     const { username, password } = req.body;
     const { errors, isValid } = authValidator(req.body);
     if (!isValid) {

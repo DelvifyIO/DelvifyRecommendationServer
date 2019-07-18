@@ -4,7 +4,9 @@ import models from '../../../db/models';
 const paginations = ['limit', 'offset'];
 
 const getCategories = (req, res) => {
-    models.Category.findAll()
+    const { merchantid } = req.headers;
+    const model = models[merchantid];
+    model.Category.findAll()
         .then(function (categories) {
             if (categories) {
                 res.send(categories);
@@ -19,13 +21,15 @@ const getCategories = (req, res) => {
 };
 
 const getCategoryProducts = (req, res) => {
+    const { merchantid } = req.headers;
+    const model = models[merchantid];
     const pagination = _.pick(req.query, paginations);
     _.each(_.keys(pagination), (key) => {
         pagination[key] = parseInt(pagination[key]);
     });
-    models.Category.findAll({
+    model.Category.findAll({
         include: [{
-            model: models.Product,
+            model: model.Product,
             as: 'products',
             limit: 1,
             attributes: ['id', 'sku'],

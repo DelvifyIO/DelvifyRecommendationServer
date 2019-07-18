@@ -1,5 +1,4 @@
 var express = require('express');
-import {user, item, engagement, order} from '../../../mongo/models';
 var moment = require('moment');
 
 const queries = ['pid', 'type'];
@@ -7,6 +6,8 @@ const timeRange = ['from', 'to'];
 const paginations = ['limit', 'offset'];
 
 const getEngagements = (req, res) => {
+    const { merchantid } = req.headers;
+    const { engagement } = require(`../../../mongo/models/${merchantid}`);
     const where = _.pick(req.query, queries);
     const timeFilter = _.pick(req.query, queries);
     const action = where.pid ?
@@ -32,37 +33,31 @@ const getEngagements = (req, res) => {
         });
 };
 
-const getEngagementCountByType = (req, res) => {
-    item.aggregate([
-        { $unwind: '$engagements' },
-        { $match: { 'engagements.type': req.query.type }},
-        { $group:{
-            _id: null,
-            count:{ $sum: 1 }
-        }},
-        { $project: { _id: 0, count: '$count' }}
-    ])
-        .then((result) => {
-            res.send(result[0] || { count: 0 });
-        })
-        .catch(console.log);
-};
-
 const getEngagementCount = (req, res) => {
-    let group = {}, fromMatch = {}, groupKey = '';
+    const { merchantid } = req.headers;
+    const { engagement } = require(`../../../mongo/models/${merchantid}`);
+    let group = {}, timeRangeMatch = {}, groupKey = '';
     let labels = [];
     let match = {};
     let aggragation = [];
     const { from, to, groupBy } = req.query;
     const timezone = req.headers.timezone;
     switch (groupBy) {
-        case 'day':
+        case 'hour':
             group = { createdAt: { $concat: [
                 { $toString: '$createdAt.hour' }, " ",
                         { $toString: '$createdAt.day' }, " ",
                         { $toString: '$createdAt.month' }, " ",
                         { $toString: '$createdAt.year' }]
             } };
+            groupKey = 'createdAt';
+            break;
+        case 'day':
+            group = { createdAt: { $concat: [
+                        { $toString: '$createdAt.day' }, " ",
+                        { $toString: '$createdAt.month' }, " ",
+                        { $toString: '$createdAt.year' }]
+                } };
             groupKey = 'createdAt';
             break;
         case 'week':
@@ -74,7 +69,6 @@ const getEngagementCount = (req, res) => {
             break;
         case 'month':
             group = { createdAt: { $concat: [
-                        { $toString: '$createdAt.day' }, " ",
                         { $toString: '$createdAt.month' }, " ",
                         { $toString: '$createdAt.year' }]
                 } };
@@ -82,7 +76,6 @@ const getEngagementCount = (req, res) => {
             break;
         case 'year':
             group = { createdAt: { $concat: [
-                        { $toString: '$createdAt.month' }, " ",
                         { $toString: '$createdAt.year' }]
                 } };
             groupKey = 'createdAt';
@@ -104,13 +97,23 @@ const getEngagementCount = (req, res) => {
             groupKey = 'device';
             break;
     }
+
     if (from) {
-        fromMatch['$gte'] = moment(from).startOf('hour').toDate();
+        timeRangeMatch['$gte'] = moment(from).startOf('hour').toDate();
+        const threeDays = moment(from).add(6, 'year').endOf('hour');
+        const toClamp = to ? moment(to).endOf('hour') : moment().endOf('hour');
+        timeRangeMatch['$lte'] = threeDays.diff(toClamp) > 0 ? toClamp.toDate() : threeDays.toDate();
+    } else if (to) {
+        const threeDays = moment(to).subtract(6, 'year').endOf('hour');
+        timeRangeMatch['$lte'] = moment(to).endOf('hour').toDate();
+        timeRangeMatch['$gte'] = threeDays.startOf('hour').toDate();
+    } else {
+        const threeDays = moment().subtract(6, 'year').endOf('hour');
+        timeRangeMatch['$lte'] = moment().endOf('hour').toDate();
+        timeRangeMatch['$gte'] = threeDays.startOf('hour').toDate();
     }
-    if (to) {
-        fromMatch['$lte'] = moment(to).endOf('hour').toDate();
-    }
-    match = { 'createdAt': fromMatch };
+    match = { 'createdAt': timeRangeMatch };
+
     aggragation = [
         { $match: match },
         { $sort: { 'createdAt': 1 } },
@@ -127,7 +130,7 @@ const getEngagementCount = (req, res) => {
                     createdAt: {
                         year: { $year: { date: '$createdAt', timezone } },
                         month: { $month: { date: '$createdAt', timezone } },
-                        week: { $week: { date: '$createdAt', timezone } },
+                        week: { $sum: [{ $week: { date: '$createdAt', timezone } }, 1] },
                         day: { $dayOfMonth: { date: '$createdAt', timezone } },
                         hour: { $hour: { date: '$createdAt', timezone }  },
                     },
@@ -140,7 +143,7 @@ const getEngagementCount = (req, res) => {
                     ...group,
                 },
                 count:{ $sum: 1 },
-                value:{ $sum: { $multiply: ['$order.price', '$order.quantity', '$order.exchangeRate'] } }} },
+                value:{ $sum: { $multiply: ['$order.price', '$order.quantity'] } }} },
 
     ];
     if (groupBy) {
@@ -153,7 +156,7 @@ const getEngagementCount = (req, res) => {
         aggragation.push({ $group:{
                 _id: '$_id.type',
                 data: { $mergeObjects: { $arrayToObject: [[[
-                    { $toString: `$_id.${groupKey}` },
+                    { $cond: [{ $eq: [{ $toString: `$_id.${groupKey}` }, null] }, '', { $toString: `$_id.${groupKey}` }] },
                     { $arrayToObject: [[['count', '$count'], ['value', '$value'], ['order', '$order']]] },
                 ]]] } },
             }});
@@ -172,12 +175,33 @@ const getEngagementCount = (req, res) => {
             data: groupBy ? '$data' : { count: '$count', value: '$value', order: '$order' },
         }});
     engagement.aggregate(aggragation)
+        .allowDiskUse(true)
         .then((result) => {
             const resultObject = {};
+            const action = {};
             result.forEach((type) => {
                 resultObject[type.type] = type.data;
+                if (type.type === 'ADD_CART_FROM_WIDGET' ||
+                    type.type === 'CLICK' ||
+                    type.type === 'SHOW_OVERLAY') {
+                    if (groupBy) {
+                        Object.keys(type.data).forEach((key) => {
+                            if (action[key]) {
+                                action[key].count += type['data'][key].count;
+                            } else {
+                                action[key] = { count: type['data'][key].count }
+                            }
+                        });
+                    } else {
+                        if (action.count) {
+                            action.count += type.data.count;
+                        } else {
+                            action.count = type.data.count;
+                        }
+                    }
+                }
             });
-            res.send(resultObject);
+            res.send({ ...resultObject, ACTION: action });
         })
         .catch(console.log);
 };
@@ -185,19 +209,29 @@ const getEngagementCount = (req, res) => {
 
 
 const getItemEngagement = (req, res) => {
-    let timeRange = {}, match = {}, sort = {}, paginationPipeline = {}, key = 'pid';
-    let date = new Date();
-    const timezone = req.headers.timezone;
+    const { merchantid } = req.headers;
+    const { engagement } = require(`../../../mongo/models/${merchantid}`);
+    let match = {}, timeRangeMatch = {}, sort = {}, paginationPipeline = {}, key = 'pid';
     const { from, to, sortBy, order } = req.query;
 
     const pagination = _.pick(req.query, paginations);
     match['$and'] = [{ 'pid': { $ne: null }}];
+
     if (from) {
-        match['$and'].push({ 'createdAt':  { $gte: new Date(from) } })
+        timeRangeMatch['$gte'] = moment(from).startOf('hour').toDate();
+        const threeDays = moment(from).add(6, 'year').endOf('hour');
+        const toClamp = to ? moment(to).endOf('hour') : moment().endOf('hour');
+        timeRangeMatch['$lte'] = threeDays.diff(toClamp) > 0 ? toClamp.toDate() : threeDays.toDate();
+    } else if (to) {
+        const threeDays = moment(to).subtract(6, 'year').endOf('hour');
+        timeRangeMatch['$lte'] = moment(to).endOf('hour').toDate();
+        timeRangeMatch['$gte'] = threeDays.startOf('hour').toDate();
+    } else {
+        const threeDays = moment().subtract(6, 'year').endOf('hour');
+        timeRangeMatch['$lte'] = moment().endOf('hour').toDate();
+        timeRangeMatch['$gte'] = threeDays.startOf('hour').toDate();
     }
-    if (to) {
-        match['$and'].push({ 'createdAt':  { $lte: new Date(to) } })
-    }
+    match = { 'createdAt': timeRangeMatch };
 
     if (sortBy) {
         key = `${sortBy !== 'pid' ? 'count.' : ''}${sortBy}`;
@@ -211,7 +245,7 @@ const getItemEngagement = (req, res) => {
                     type: '$type',
                 },
                 count: { $sum: 1 },
-                value: { $sum: { $multiply: ['$order.price', '$order.quantity', '$order.exchangeRate'] } },
+                value: { $sum: { $multiply: ['$order.price', '$order.quantity'] } },
             }},
         { $group: {
                 _id: { pid: '$_id.pid' },
@@ -259,6 +293,7 @@ const getItemEngagement = (req, res) => {
         }
     });
     engagement.aggregate(aggragation)
+        .allowDiskUse(true)
         .then((result) => {
             res.send(result[0] || { total: 0, rows: [] });
         })
@@ -266,6 +301,8 @@ const getItemEngagement = (req, res) => {
 };
 
 const insertEngagement = (req, res) => {
+    const { merchantid } = req.headers;
+    const {engagement} = require(`../../../mongo/models/${merchantid}`);
     const { pid, type, location, source, geo_location, device, uid } = req.body;
     const newEngagement = new engagement({
         pid,

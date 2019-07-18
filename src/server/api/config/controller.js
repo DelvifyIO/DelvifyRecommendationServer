@@ -1,7 +1,8 @@
 var express = require('express');
-import {config} from '../../../mongo/models';
 
 const getConfig = (req, res) => {
+    const { merchantid } = req.headers;
+    const {config} = require(`../../../mongo/models/${merchantid}`);
     config.findOne()
         .sort({ createdAt: -1 })
         .then((result) => {
@@ -17,6 +18,8 @@ const getConfig = (req, res) => {
 };
 
 const insertConfig = (req, res) => {
+    const { merchantid } = req.headers;
+    const {config} = require(`../../../mongo/models/${merchantid}`);
     const featuredItems = req.body.featuredItems;
 
     const newConfig = new config({

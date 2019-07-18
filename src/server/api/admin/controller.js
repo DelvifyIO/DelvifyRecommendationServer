@@ -1,7 +1,8 @@
-import { admin } from '../../../mongo/models';
 import { authValidator } from '../../validation';
 
 const getAdmins = (req, res) => {
+    const { merchantid } = req.headers;
+    const {admin} = require(`../../../mongo/models/${merchantid}`);
     admin.find()
         .then((admins) => {
             if (admins && admin.length > 0) {
@@ -15,6 +16,8 @@ const getAdmins = (req, res) => {
         })
 };
 const addAdmin = (req, res) => {
+    const { merchantid } = req.headers;
+    const {admin} = require(`../../../mongo/models/${merchantid}`);
     const { username, password, createdBy } = req.body;
     const { errors, isValid } = authValidator({ username, password });
     if (!isValid) {
@@ -40,6 +43,8 @@ const addAdmin = (req, res) => {
 };
 
 const updateAdmin = (req, res) => {
+    const { merchantid } = req.headers;
+    const {admin} = require(`../../../mongo/models/${merchantid}`);
     const { id } = req.params;
     const { username } = req.body;
     admin.findOneAndUpdate({ _id: id }, { username }, { new: true })
@@ -52,6 +57,8 @@ const updateAdmin = (req, res) => {
 };
 
 const removeAdmin = (req, res) => {
+    const { merchantid } = req.headers;
+    const {admin} = require(`../../../mongo/models/${merchantid}`);
     const { ids } = req.body;
     admin.deleteMany({ _id: { $in: ids } })
         .then(() => {

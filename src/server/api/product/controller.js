@@ -5,6 +5,8 @@ const queries = ['categoryId', 'price', 'keywords', 'sku'];
 const paginations = ['limit', 'offset'];
 
 const getProducts = (req, res) => {
+    const { merchantid } = req.headers;
+    const model = models[merchantid];
     if (req.query.sku) {
         return getProductBySku(req, res);
     } else if (req.query.skus) {
@@ -16,7 +18,7 @@ const getProducts = (req, res) => {
         pagination[key] = parseInt(pagination[key]);
     });
 
-    models.Product.findAndCountAll({
+    model.Product.findAndCountAll({
         where,
         attributes: ['id', 'sku', 'name', 'price', 'categoryId', 'currencyId'],
         include: ['images', 'category', 'currency'],
@@ -36,7 +38,9 @@ const getProducts = (req, res) => {
 };
 
 const getProduct = (req, res) => {
-    models.Product.findByPk(req.params.id, {
+    const { merchantid } = req.headers;
+    const model = models[merchantid];
+    model.Product.findByPk(req.params.id, {
         include: ['images', 'category', 'currency'],
     })
         .then(function (product) {
@@ -53,7 +57,9 @@ const getProduct = (req, res) => {
 };
 
 const getProductBySku = (req, res) => {
-    models.Product.findOne({
+    const { merchantid } = req.headers;
+    const model = models[merchantid];
+    model.Product.findOne({
         where: { sku: req.query.sku },
         include: ['images', 'category', 'currency'],
     })
@@ -71,7 +77,9 @@ const getProductBySku = (req, res) => {
 };
 
 const getProductBySkus = (req, res) => {
-    models.Product.findAll({
+    const { merchantid } = req.headers;
+    const model = models[merchantid];
+    model.Product.findAll({
         where: { sku: req.query.skus },
         include: ['images', 'category', 'currency'],
     })

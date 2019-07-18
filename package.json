@@ -7,7 +7,10 @@
     "build": "nodemon --exec babel-node src -d dist",
     "start": "npm run build && nodemon dist/index.js",
     "prod": "node dist/index.js",
-    "seed": "sequelize db:seed:all && seed --db-name delvify --drop-database ./src/mongo/seeders"
+    "seed:product:db1": "sequelize --options-path ./.sequelize-db1 --env db1 db:seed:all",
+    "seed:product:db2": "sequelize --options-path ./.sequelize-db2 --env db2 db:seed:all",
+    "seed:server:db1": "seed --db-name delvify --drop-database ./src/mongo/seeders/db1",
+    "seed:server:db2": "seed --db-name delvify2 --drop-database ./src/mongo/seeders/db2"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

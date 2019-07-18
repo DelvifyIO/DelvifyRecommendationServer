@@ -1,3 +1,4 @@
+import database from '../index';
 let mongoose = require('mongoose');
 
 let simItemsSchema = new mongoose.Schema({
@@ -10,4 +11,4 @@ let similaritySchema = new mongoose.Schema({
     sim_items: [simItemsSchema],
 });
 
-export default mongoose.model('Similarity', similaritySchema);
+export default database.db1.model('Similarity', similaritySchema);

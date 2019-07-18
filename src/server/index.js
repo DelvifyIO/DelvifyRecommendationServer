@@ -25,9 +25,9 @@ app.use('/api', expressJwt({ secret: process.env.WEB_SECRET })
         '/api/auth/login',
         /^\/api\/category/,
         '/api/product',
-        { url: '/api/config', methods: ['GET'] },
-        { url: '/api/engagement', methods: ['POST'] },
-        { url: '/api/order', methods: ['POST'] },
+        { url: /^\/api\/config/, methods: ['GET', 'OPTIONS'] },
+        { url: '/api/engagement', methods: ['POST', 'OPTIONS'] },
+        { url: '/api/order', methods: ['POST', 'OPTIONS'] },
         /^\/api\/recommendation\//,
     ]}));
 
@@ -35,8 +35,13 @@ app.use('/api', expressJwt({ secret: process.env.WEB_SECRET })
 require('./route')(app); // pass our application into our routes
 
 // start app ===============================================
-models.sequelize.sync().then(function () {
-    app.listen(port);
-    console.log('Listening to: ' + port); 			// shoutout to the user
+const syncs = [];
+Object.keys(models.sequelize).forEach((db) => {
+    syncs.push((models.sequelize[db]).sync());
 });
+Promise.all(syncs)
+    .then(() => {
+        app.listen(port);
+        console.log('Listening to: ' + port); 			// shoutout to the user
+    });
 exports = module.exports = app; 						// expose app

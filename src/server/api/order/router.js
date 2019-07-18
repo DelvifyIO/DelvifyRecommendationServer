@@ -13,5 +13,6 @@ router.get('/', controller.getOrders);
 router.post('/', controller.insertOrder);
 router.get('/amount', controller.getOrderAmount);
 router.get('/interval', controller.getTimeToPurchase);
+router.get('/all', controller.getAllOrders);
 
 module.exports = router;

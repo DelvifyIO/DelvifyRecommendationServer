@@ -1,43 +1,26 @@
 'use strict';
 import bluebird from 'bluebird';
-import similarity from './similarity';
-import item from './item';
-import order from './order';
-import config from './config';
-import admin from './admin';
-import engagement from './engagement';
-
 const env       = process.env.NODE_ENV || 'development';
 const dbConfig  = require(__dirname + '/../../config/database.js')['mongoose'][env];
 
 let mongoose = require('mongoose');
 
 class Database {
-    constructor() {
-        this._connect()
+    constructor(config) {
+        this.config = config;
+        this._connect();
     }
     _connect() {
-
-        const server = dbConfig.server; // REPLACE WITH YOUR DB SERVER
-        const database = dbConfig.database;      // REPLACE WITH YOUR DB NAME
+        const server = this.config.server; // REPLACE WITH YOUR DB SERVER
+        const database = this.config.database;      // REPLACE WITH YOUR DB NAME
         mongoose.Promise = bluebird;
-        mongoose.connect(`mongodb://${server}/${database}`, { useFindAndModify: false })
-            .then(() => {
-                console.log('Database connection successful')
-            })
-            .catch(err => {
-                console.error('Database connection error')
-            });
+        this.connection = mongoose.createConnection(`mongodb://${server}/${database}`, { useFindAndModify: false });
     }
 }
-
-const db = new Database();
-export default db;
-export {
-    similarity,
-    item,
-    order,
-    config,
-    admin,
-    engagement,
+const db = {};
+const databases = Object.keys(dbConfig);
+for (let i=0; i<databases.length; i++) {
+    db[databases[i]] = new Database(dbConfig[databases[i]]).connection;
 }
+
+export default db;
