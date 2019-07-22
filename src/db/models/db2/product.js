@@ -23,9 +23,9 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     Product.associate = function(models) {
-        models.Product.hasMany(models.Image, { as: 'images', constraints: false });
-        models.Product.belongsTo(models.Category, { as: 'category', constraints: false });
-        models.Product.belongsTo(models.Currency, { as: 'currency', constraints: false });
+        models.db2.Product.hasMany(models.db2.Image, { as: 'images', constraints: false });
+        models.db2.Product.belongsTo(models.db2.Category, { as: 'category', constraints: false });
+        models.db2.Product.belongsTo(models.db2.Currency, { as: 'currency', constraints: false });
     };
 
     return Product;

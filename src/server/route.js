@@ -8,7 +8,7 @@ module.exports = function (app) {
         // do logging
         console.log('Entered first middleware.');
         res.header("Access-Control-Allow-Origin", "*");
-        res.header("Access-Control-Allow-Headers", "Origin, OPTIONS, X-Requested-With, Content-Type, Accept, timezone, Authorization",);
+        res.header("Access-Control-Allow-Headers", "Origin, OPTIONS, X-Requested-With, Content-Type, Accept, timezone, Authorization, merchantId",);
         res.header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE",);
         next(); // make sure we go to the next routes and don't stop here
     });

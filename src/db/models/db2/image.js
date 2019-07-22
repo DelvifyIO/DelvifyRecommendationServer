@@ -1,15 +1,13 @@
 'use strict';
 
 module.exports = (sequelize, DataTypes) => {
-    var Similarity = sequelize.define('Similarity', {
-        id: {
-            type: DataTypes.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-        },
-        item_id: DataTypes.INTEGER,
-        sim_item_sku: DataTypes.STRING,
-        similarity: DataTypes.DOUBLE,
+    var Image = sequelize.define('Image', {
+        url: DataTypes.STRING,
+        url50: DataTypes.STRING,
+        url100: DataTypes.STRING,
+        url200: DataTypes.STRING,
+        url300: DataTypes.STRING,
+        url400: DataTypes.STRING,
 
         createdAt: {
             type: DataTypes.DATE,
@@ -23,9 +21,9 @@ module.exports = (sequelize, DataTypes) => {
         },
     });
 
-    Similarity.associate = function(models) {
+    Image.associate = function(models) {
         // models.User.hasMany(models.Task);
     };
 
-    return Similarity;
+    return Image;
 };

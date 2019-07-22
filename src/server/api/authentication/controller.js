@@ -1,8 +1,8 @@
-import { admin } from '../../../mongo/models';
 import { authValidator } from '../../validation';
 
 const login = (req, res) => {
-    const { username, password } = req.body;
+    const { merchantid, username, password } = req.body;
+    const {admin} = require(`../../../mongo/models/${merchantid}`);
     const { errors, isValid } = authValidator(req.body);
     if (!isValid) {
         return res.status(400).send(errors);
@@ -13,8 +13,8 @@ const login = (req, res) => {
                 return res.status(401).send('Username not found');
             }
             if(foundAdmin.validPassword(password)) {
-                const token = foundAdmin.generateJwt();
-                return res.send({ admin: foundAdmin, token });
+                const token = foundAdmin.generateJwt(merchantid);
+                return res.send({ admin: foundAdmin, merchantid: merchantid, token });
             } else {
                 return res.status(401).send('Incorrect password');
             }

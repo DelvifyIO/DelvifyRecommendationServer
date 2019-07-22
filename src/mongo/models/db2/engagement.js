@@ -1,10 +1,20 @@
+import database from '../index';
 let mongoose = require('mongoose');
-let timestampPlugin = require('./plugins/timestamp');
+let timestampPlugin = require('../plugins/timestamp');
+
+let orderSchema = new mongoose.Schema({
+    oid: mongoose.Mixed,
+    price: Number,
+    quantity: Number,
+    currency: String,
+    exchangeRate: Number,
+});
 
 let engagementSchema = new mongoose.Schema({
+    pid: mongoose.Mixed,
     type: {
         type: String,
-        enum: ['DISPLAY', 'SHOW_OVERLAY', 'CLICK', 'ADD_CART_FROM_WIDGET', 'ADD_CART_FROM_DETAIL', 'PURCHASE'],
+        enum: ['WIDGET_IMPRESSION', 'IMPRESSION', 'SHOW_OVERLAY', 'CLICK', 'ADD_CART_FROM_WIDGET', 'ADD_CART_FROM_DETAIL', 'PURCHASE'],
     },
     location: {
         type: String,
@@ -20,13 +30,9 @@ let engagementSchema = new mongoose.Schema({
         enum: ['DESKTOP', 'MOBILE', 'TABLET'],
     },
     uid: String,
+    order: orderSchema,
 });
 
 engagementSchema.plugin(timestampPlugin);
 
-let itemSchema = new mongoose.Schema({
-    pid: mongoose.Mixed,
-    engagements: [engagementSchema],
-});
-
-export default mongoose.model('Item', itemSchema);
+export default database.db2.model('Engagement', engagementSchema);

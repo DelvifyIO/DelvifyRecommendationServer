@@ -1,11 +1,12 @@
 var express = require('express');
-import {user} from '../../../mongo/models';
 var moment = require('moment');
 
 const queries = ['uid', 'location', 'device'];
 const paginations = ['limit', 'offset'];
 
 const getUsers = (req, res) => {
+    const { merchantid } = req.headers;
+    const { user } = require(`../../../mongo/models/${merchantid}`);
     const where = _.pick(req.query, queries);
     const action = where.uid ?
         user.findOne({
@@ -33,6 +34,8 @@ const getUsers = (req, res) => {
 };
 
 const getUserCount = (req, res) => {
+    const { merchantid } = req.headers;
+    const { user } = require(`../../../mongo/models/${merchantid}`);
     const where = _.pick(req.query, queries);
 
     user.estimatedDocumentCount(where)

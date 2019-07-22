@@ -1,5 +1,6 @@
+import database from '../index';
 let mongoose = require('mongoose');
-let timestampPlugin = require('./plugins/timestamp');
+let timestampPlugin = require('../plugins/timestamp');
 
 let orderSchema = new mongoose.Schema({
     oid: mongoose.Mixed,
@@ -34,4 +35,4 @@ let engagementSchema = new mongoose.Schema({
 
 engagementSchema.plugin(timestampPlugin);
 
-export default mongoose.model('Engagement', engagementSchema);
+export default database.db1.model('Engagement', engagementSchema);
