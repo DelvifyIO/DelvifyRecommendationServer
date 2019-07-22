@@ -100,17 +100,17 @@ const getEngagementCount = (req, res) => {
 
     if (from) {
         timeRangeMatch['$gte'] = moment(from).startOf('hour').toDate();
-        const threeDays = moment(from).add(6, 'year').endOf('hour');
+        const defaultRange = moment(from).add(1, 'year').endOf('hour');
         const toClamp = to ? moment(to).endOf('hour') : moment().endOf('hour');
-        timeRangeMatch['$lte'] = threeDays.diff(toClamp) > 0 ? toClamp.toDate() : threeDays.toDate();
+        timeRangeMatch['$lte'] = defaultRange.diff(toClamp) > 0 ? toClamp.toDate() : defaultRange.toDate();
     } else if (to) {
-        const threeDays = moment(to).subtract(6, 'year').endOf('hour');
+        const defaultRange = moment(to).subtract(1, 'year').endOf('hour');
         timeRangeMatch['$lte'] = moment(to).endOf('hour').toDate();
-        timeRangeMatch['$gte'] = threeDays.startOf('hour').toDate();
+        timeRangeMatch['$gte'] = defaultRange.startOf('hour').toDate();
     } else {
-        const threeDays = moment().subtract(6, 'year').endOf('hour');
+        const defaultRange = moment().subtract(1, 'year').endOf('hour');
         timeRangeMatch['$lte'] = moment().endOf('hour').toDate();
-        timeRangeMatch['$gte'] = threeDays.startOf('hour').toDate();
+        timeRangeMatch['$gte'] = defaultRange.startOf('hour').toDate();
     }
     match = { 'createdAt': timeRangeMatch };
 
@@ -231,7 +231,7 @@ const getItemEngagement = (req, res) => {
         timeRangeMatch['$lte'] = moment().endOf('hour').toDate();
         timeRangeMatch['$gte'] = threeDays.startOf('hour').toDate();
     }
-    match = { 'createdAt': timeRangeMatch };
+    match['createdAt'] = timeRangeMatch;
 
     if (sortBy) {
         key = `${sortBy !== 'pid' ? 'count.' : ''}${sortBy}`;

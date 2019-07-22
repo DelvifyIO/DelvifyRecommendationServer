@@ -1,3 +1,5 @@
+import database from "../index";
+
 let mongoose = require('mongoose');
 let timestampPlugin = require('../plugins/timestamp');
 
@@ -19,4 +21,4 @@ let orderSchema = new mongoose.Schema({
 });
 orderSchema.plugin(timestampPlugin);
 
-export default mongoose.model('Order', orderSchema);
+export default database.db2.model('Order', orderSchema);

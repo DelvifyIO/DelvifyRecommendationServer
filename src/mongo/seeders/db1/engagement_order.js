@@ -21,7 +21,7 @@ class EngagementOrder {
             {name: 'Australia', currency: 'AUD', exchangeRate: 1.43421},
             {name: 'Indonesia', currency: 'IDR', exchangeRate: 14065.68},
             {name: 'South Korea', currency: 'KRW', exchangeRate: 1173.22},];
-        const startDate = new Date(2000, 0, 1);
+        const startDate = new Date(2016, 0, 1);
 
         function randomDate(start, end) {
             return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
@@ -132,11 +132,11 @@ class EngagementOrder {
             });
         }
         function generateEngagements() {
-            const noOfUsers = random(100, 200);
+            const noOfUsers = random(100, 300);
 
             for (let u = 0; u < noOfUsers; u++) {
                 const user = getUser();
-                const noOfEngagements = random(10, 1000);
+                const noOfEngagements = random(100, 1000);
                 const noOfOrders = random(0, noOfEngagements);
                 for (let e = 0; e < noOfEngagements; e++) {
                     const engagement = getEngagement({...user});
