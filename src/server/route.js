@@ -29,7 +29,7 @@ module.exports = function (app) {
     app.use('/api/config', require('./api/config'));
     app.use('/api/auth', require('./api/authentication'));
     app.use('/api/admin', require('./api/admin'));
-
+    app.use('/api/js', require('./api/js'));
 
     // frontend routes =========================================================
     // route to handle all angular requests
