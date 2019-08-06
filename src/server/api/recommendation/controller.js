@@ -13,11 +13,9 @@ const getSimilarities = (req, res) => {
         pagination[key] = parseInt(pagination[key]);
     });
     similarity.findOne({ pid })
-        .skip(pagination.offset)
-        .limit(pagination.limit)
         .then(function (similarities) {
             if (similarities) {
-                res.send(similarities.sim_items.map(item => item.pid));
+                res.send(similarities.sim_items.slice(0, pagination.limit).map(item => item.pid));
             }
             else {
                 res.status(404).send({ message: 'Not found' });
@@ -39,7 +37,14 @@ const getFeatured = (req, res) => {
     config.findOne()
         .sort({ createdAt: -1 })
         .then((result) => {
-            return res.send(result.featuredItems || []);
+            const featuredItems = result.featuredItems;
+            const pids = [];
+            while(featuredItems.length !== 0) {
+                const rand = Math.floor(Math.random() * featuredItems.length);
+                pids.push(featuredItems[rand]);
+                featuredItems.splice(rand, 1);
+            }
+            return res.send(pids.slice(0, pagination.limit));
         })
         .catch(function (err) {
             return res.status(404).send(err.message);

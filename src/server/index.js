@@ -29,6 +29,7 @@ app.use('/api', expressJwt({ secret: process.env.WEB_SECRET })
         { url: '/api/engagement', methods: ['POST', 'OPTIONS'] },
         { url: '/api/order', methods: ['POST', 'OPTIONS'] },
         /^\/api\/recommendation\//,
+        '/api/js',
     ]}));
 
 // routes ==================================================

@@ -20,9 +20,11 @@ const getConfig = (req, res) => {
 const insertConfig = (req, res) => {
     const { merchantid } = req.headers;
     const {config} = require(`../../../mongo/models/${merchantid}`);
+    const placements = req.body.placements;
     const featuredItems = req.body.featuredItems;
 
     const newConfig = new config({
+        placements,
         featuredItems,
     });
     newConfig.save()
