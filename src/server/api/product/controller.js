@@ -82,7 +82,6 @@ const getProductBySkus = (req, res) => {
     _.each(_.keys(pagination), (key) => {
         pagination[key] = parseInt(pagination[key]);
     });
-    console.log(req.query.skus);
     model.Product.findAndCountAll({
         where: { sku: req.query.skus },
         include: ['images', 'category', 'currency'],
