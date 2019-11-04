@@ -17,7 +17,6 @@ const getProducts = (req, res) => {
     _.each(_.keys(pagination), (key) => {
         pagination[key] = parseInt(pagination[key]);
     });
-
     model.Product.findAndCountAll({
         where,
         attributes: ['id', 'sku', 'name', 'price', 'categoryId', 'currencyId'],
@@ -79,9 +78,15 @@ const getProductBySku = (req, res) => {
 const getProductBySkus = (req, res) => {
     const { merchantid } = req.headers;
     const model = models[merchantid];
-    model.Product.findAll({
+    const pagination = _.pick(req.query, paginations);
+    _.each(_.keys(pagination), (key) => {
+        pagination[key] = parseInt(pagination[key]);
+    });
+    console.log(req.query.skus);
+    model.Product.findAndCountAll({
         where: { sku: req.query.skus },
         include: ['images', 'category', 'currency'],
+        ...pagination,
     })
         .then(function (product) {
             if (product) {
@@ -92,6 +97,7 @@ const getProductBySkus = (req, res) => {
             }
         })
         .catch(function (err) {
+            console.log(err);
             res.status(404).send(err.message);
         });
 };
