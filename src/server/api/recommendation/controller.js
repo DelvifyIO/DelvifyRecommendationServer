@@ -15,11 +15,15 @@ const getSimilarities = (req, res) => {
     similarity.findOne({ pid })
         .then(function (similarities) {
             if (similarities) {
-                res.send(similarities.sim_items.slice(0, pagination.limit).map(item => item.pid));
+                const pids = similarities.sim_items.slice(0, pagination.limit).map(item => item.pid);
+                return similarity.find({ pid: { $in: pids }});
             }
             else {
-                res.status(404).send({ message: 'Not found' });
+                throw new Error('Not Found');
             }
+        })
+        .then(function (similarities) {
+            res.send(similarities);
         })
         .catch(function (err) {
             res.status(404).send(err.message);
