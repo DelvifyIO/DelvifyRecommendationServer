@@ -15,6 +15,7 @@ const getSimilarities = (req, res) => {
     similarity.findOne({ pid })
         .then(function (similarities) {
             if (similarities) {
+                console.log(similarities);
                 const pids = similarities.sim_items.slice(0, pagination.limit).map(item => item.pid);
                 return similarity.find({ pid: { $in: pids }});
             }
@@ -23,7 +24,8 @@ const getSimilarities = (req, res) => {
             }
         })
         .then(function (similarities) {
-            res.send(similarities);
+            // console.log(similarities.map((item) => item.pid));
+            res.send(similarities.map((item) => item.pid));
         })
         .catch(function (err) {
             res.status(404).send(err.message);
