@@ -30,6 +30,7 @@ module.exports = function (app) {
     app.use('/api/auth', require('./api/authentication'));
     app.use('/api/admin', require('./api/admin'));
     app.use('/api/js', require('./api/js'));
+    app.use('/api/query', require('./api/query'));
 
     app.use('/api/master/register', require('./api/register'));
     app.use('/api/master/client', require('./api/client'));

@@ -30,6 +30,7 @@ app.use('/api', expressJwt({ secret: process.env.WEB_SECRET })
         { url: '/api/order', methods: ['POST', 'OPTIONS'] },
         /^\/api\/recommendation\//,
         '/api/js',
+        /^\/api\/query/,
         '/api/engagement/item',
         /^\/api\/master\/register/,
         /^\/api\/master\/client/,
