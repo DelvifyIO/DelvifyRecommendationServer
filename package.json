@@ -7,7 +7,6 @@
     "build": "nodemon --exec babel-node src -d dist",
     "start": "npm run build && nodemon dist/index.js",
     "prod": "node dist/index.js",
-    "seed:product:db1": "sequelize --options-path ./.sequelize-db1 --env db1 db:seed:all",
     "seed:product:db2": "sequelize --options-path ./.sequelize-db2 --env db2 db:seed:all",
     "seed:server": "seed --db-name delvify --drop-database ./src/mongo/seeders"
   },

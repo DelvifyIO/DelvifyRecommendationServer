@@ -1,14 +1,6 @@
 module.exports = {
     mysql: {
         development: {
-            db1: {
-                host     : 'localhost',
-                username : 'root',
-                password : 'root',
-                database : 'delvify',
-                dialect  : 'mysql',
-                modelsDir : '/db1',
-            },
             db2: {
                 host     : 'localhost',
                 username : 'root',
@@ -18,15 +10,6 @@ module.exports = {
                 modelsDir : '/db2',
             },
         },
-    },
-
-    db1: {
-        host     : 'localhost',
-        username : 'root',
-        password : 'root',
-        database : 'delvify',
-        dialect  : 'mysql',
-        modelsDir : '/db1',
     },
     db2: {
         host     : 'localhost',

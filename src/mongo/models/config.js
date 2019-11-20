@@ -2,6 +2,7 @@ let mongoose = require('mongoose');
 let timestampPlugin = require('./plugins/timestamp');
 
 let widgetSchema = new mongoose.Schema({
+    merchantId: String,
     location: {
         type: String,
         enum: ['HOME_PAGE', 'PRODUCT_PAGE', 'CART_PAGE'],

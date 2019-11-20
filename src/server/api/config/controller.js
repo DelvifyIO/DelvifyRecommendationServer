@@ -29,7 +29,7 @@ const insertAttributes = (req, res) => {
         .catch(function (err) {
             res.status(404).send(err.message);
         });
-}
+};
 
 const insertConfig = (req, res) => {
     const { merchantid } = req.headers;
@@ -73,8 +73,6 @@ const insertConfig = (req, res) => {
         .catch(function (err) {
             res.status(404).send(err.message);
         });
-
-
 };
 
 module.exports = {

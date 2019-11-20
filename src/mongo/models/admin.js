@@ -38,7 +38,6 @@ adminSchema.methods.generateJwt = function (client) {
 };
 
 const adminModel = mongoose.model('Admin', adminSchema);
-
 const rootAdmin = new adminModel();
 
 adminModel.findOne({ username: process.env.ROOT_ADMIN, merchantId: null })
