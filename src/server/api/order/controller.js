@@ -1,12 +1,12 @@
 var express = require('express');
 var moment = require('moment');
+const { order, user, engagement } = require(`../../../mongo/models`);
 
 const queries = ['oid', 'pid', 'sku', 'uid'];
 const paginations = ['limit', 'offset'];
 
 const getAllOrders = (req, res) => {
     const { merchantid } = req.headers;
-    const { order } = require(`../../../mongo/models/${merchantid}`);
     const where = _.pick(req.query, queries);
     const action = where.pid ?
         order.findOne(where) :
@@ -32,7 +32,6 @@ const getAllOrders = (req, res) => {
 };
 const getOrders = (req, res) => {
     const { merchantid } = req.headers;
-    const { order } = require(`../../../mongo/models/${merchantid}`);
     let match = {}, timeRangeMatch = {}, sort = {}, paginationPipeline = {}, key = 'oid';
     const { from, to, sortBy, order: sortOrder } = req.query;
 
@@ -112,7 +111,6 @@ const getOrders = (req, res) => {
 
 const getOrderAmount = (req, res) => {
     const { merchantid } = req.headers;
-    const { order } = require(`../../../mongo/models/${merchantid}`);
     const { from, to } = req.query;
     let match = {}, timeRangeMatch = {};
 
@@ -170,7 +168,6 @@ const getOrderAmount = (req, res) => {
 
 const getTimeToPurchase = (req, res) => {
     const { merchantid } = req.headers;
-    const { order, user, engagement } = require(`../../../mongo/models/${merchantid}`);
     const where = _.pick(req.query, queries);
     const getAverage = user.aggregate([
         { $unwind: '$engagements' },
@@ -223,7 +220,6 @@ const getTimeToPurchase = (req, res) => {
 
 const insertOrder = (req, res) => {
     const { merchantid } = req.headers;
-    const { order, engagement } = require(`../../../mongo/models/${merchantid}`);
     const { oid, uid, geo_location, device, order: items } = req.body;
     const twoHours = 2 * 60 * 60 *1000;
     const now = Date.now();

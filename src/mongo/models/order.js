@@ -1,7 +1,5 @@
-import database from "../index";
-
 let mongoose = require('mongoose');
-let timestampPlugin = require('../plugins/timestamp');
+let timestampPlugin = require('./plugins/timestamp');
 
 let itemSchema = new mongoose.Schema({
     pid: mongoose.Mixed,
@@ -13,6 +11,7 @@ let itemSchema = new mongoose.Schema({
 });
 
 let orderSchema = new mongoose.Schema({
+    merchantId: String,
     oid: mongoose.Mixed,
     uid: mongoose.Mixed,
     geo_location: String,
@@ -21,4 +20,4 @@ let orderSchema = new mongoose.Schema({
 });
 orderSchema.plugin(timestampPlugin);
 
-export default database.db2.model('Order', orderSchema);
+export default mongoose.model('Order', orderSchema);

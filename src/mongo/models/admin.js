@@ -1,16 +1,12 @@
-import database from '../index';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 
 let mongoose = require('mongoose');
-let timestampPlugin = require('../plugins/timestamp');
+let timestampPlugin = require('./plugins/timestamp');
 
 let adminSchema = new mongoose.Schema({
-    username: {
-        type: String,
-        unique: true,
-        require: true,
-    },
+    merchantId: String,
+    username: String,
     hash: String,
     salt: String,
     createdBy: mongoose.Schema.ObjectId,
@@ -35,9 +31,10 @@ adminSchema.methods.generateJwt = function (merchantid) {
     }, process.env.WEB_SECRET)
 };
 
-const adminModel = database.db1.model('Admin', adminSchema);
+const adminModel = mongoose.model('Admin', adminSchema);
 const rootAdmin = new adminModel();
 
+rootAdmin.merchantId = 'mymall';
 rootAdmin.username = process.env.ROOT_ADMIN;
 rootAdmin.setPassword(process.env.ROOT_PASSWORD);
 rootAdmin.save();

@@ -1,26 +1,41 @@
 'use strict';
 import bluebird from 'bluebird';
+import similarity from './similarity';
+import order from './order';
+import config from './config';
+import admin from './admin';
+import engagement from './engagement';
+
 const env       = process.env.NODE_ENV || 'development';
 const dbConfig  = require(__dirname + '/../../config/database.js')['mongoose'][env];
 
 let mongoose = require('mongoose');
 
 class Database {
-    constructor(config) {
-        this.config = config;
-        this._connect();
+    constructor() {
+        this._connect()
     }
     _connect() {
-        const server = this.config.server; // REPLACE WITH YOUR DB SERVER
-        const database = this.config.database;      // REPLACE WITH YOUR DB NAME
+
+        const server = dbConfig.server; // REPLACE WITH YOUR DB SERVER
+        const database = dbConfig.database;      // REPLACE WITH YOUR DB NAME
         mongoose.Promise = bluebird;
-        this.connection = mongoose.createConnection(`mongodb://${server}/${database}`, { useFindAndModify: false });
+        mongoose.connect(`mongodb://${server}/${database}`, { useFindAndModify: false })
+            .then(() => {
+                console.log('Database connection successful')
+            })
+            .catch(err => {
+                console.error('Database connection error')
+            });
     }
 }
-const db = {};
-const databases = Object.keys(dbConfig);
-for (let i=0; i<databases.length; i++) {
-    db[databases[i]] = new Database(dbConfig[databases[i]]).connection;
-}
 
+const db = new Database();
 export default db;
+export {
+    similarity,
+    order,
+    config,
+    admin,
+    engagement,
+}

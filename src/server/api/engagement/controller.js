@@ -1,5 +1,6 @@
 var express = require('express');
 var moment = require('moment');
+const { engagement } = require(`../../../mongo/models`);
 
 const queries = ['pid', 'type'];
 const timeRange = ['from', 'to'];
@@ -7,7 +8,6 @@ const paginations = ['limit', 'offset'];
 
 const getEngagements = (req, res) => {
     const { merchantid } = req.headers;
-    const { engagement } = require(`../../../mongo/models/${merchantid}`);
     const where = _.pick(req.query, queries);
     const timeFilter = _.pick(req.query, queries);
     const action = where.pid ?
@@ -35,7 +35,6 @@ const getEngagements = (req, res) => {
 
 const getEngagementCount = (req, res) => {
     const { merchantid } = req.headers;
-    const { engagement } = require(`../../../mongo/models/${merchantid}`);
     let group = {}, timeRangeMatch = {}, groupKey = '';
     let labels = [];
     let match = {};
@@ -210,7 +209,6 @@ const getEngagementCount = (req, res) => {
 
 const getItemEngagement = (req, res) => {
     const { merchantid } = req.headers;
-    const { engagement } = require(`../../../mongo/models/${merchantid}`);
     let match = {}, timeRangeMatch = {}, sort = {}, paginationPipeline = {}, key = 'pid';
     const { from, to, sortBy, order } = req.query;
 
@@ -302,7 +300,6 @@ const getItemEngagement = (req, res) => {
 
 const insertEngagement = (req, res) => {
     const { merchantid } = req.headers;
-    const {engagement} = require(`../../../mongo/models/${merchantid}`);
     const { pid, type, location, source, geo_location, device, uid } = req.body;
     const newEngagement = new engagement({
         pid,

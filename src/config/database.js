@@ -39,14 +39,8 @@ module.exports = {
 
     mongoose: {
         development: {
-            db1: {
-                server: 'localhost:27017',
-                database: 'delvify',
-            },
-            db2: {
-                server: 'localhost:27017',
-                database: 'delvify2',
-            }
-        }
+            server: 'localhost:27017',
+            database: 'master',
+        },
     }
 };

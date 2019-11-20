@@ -2,10 +2,10 @@ import express from 'express';
 
 // const { similarity, config } = models;
 const paginations = ['limit', 'offset'];
+const { similarity, config } = require(`../../../mongo/models`);
 
 const getSimilarities = (req, res) => {
     const { merchantid } = req.headers;
-    const { similarity, config } = require(`../../../mongo/models/${merchantid}`);
 
     const { pid } = req.params;
     const pagination = _.pick(req.query, paginations);
@@ -34,7 +34,6 @@ const getSimilarities = (req, res) => {
 
 const getFeatured = (req, res) => {
     const { merchantid } = req.headers;
-    const { similarity, config } = require(`../../../mongo/models/${merchantid}`);
 
     const pagination = _.pick(req.query, paginations);
     _.each(_.keys(pagination), (key) => {
