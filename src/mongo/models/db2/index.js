@@ -3,6 +3,7 @@ import order from './order';
 import config from './config';
 import admin from './admin';
 import engagement from './engagement';
+import query from './query';
 
 module.exports = {
     similarity,
@@ -10,4 +11,5 @@ module.exports = {
     config,
     admin,
     engagement,
+    query,
 }
