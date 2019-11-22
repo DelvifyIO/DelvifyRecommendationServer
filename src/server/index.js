@@ -24,7 +24,7 @@ app.use('/api', expressJwt({ secret: process.env.WEB_SECRET })
     .unless({ path: [
         '/api/auth/login',
         /^\/api\/category/,
-        '/api/product',
+        /^\/api\/product/,
         { url: /^\/api\/config/, methods: ['GET', 'OPTIONS'] },
         { url: '/api/engagement', methods: ['POST', 'OPTIONS'] },
         { url: '/api/order', methods: ['POST', 'OPTIONS'] },
