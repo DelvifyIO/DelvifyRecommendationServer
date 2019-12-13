@@ -5,6 +5,7 @@ import order from './order';
 import config from './config';
 import admin from './admin';
 import engagement from './engagement';
+import client from './client';
 
 const env       = process.env.NODE_ENV || 'development';
 const dbConfig  = require(__dirname + '/../../config/database.js')['mongoose'][env];
@@ -38,4 +39,5 @@ export {
     config,
     admin,
     engagement,
+    client,
 }

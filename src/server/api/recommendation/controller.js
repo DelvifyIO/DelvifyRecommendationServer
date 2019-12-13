@@ -6,30 +6,47 @@ const { similarity, config } = require(`../../../mongo/models`);
 
 const getSimilarities = (req, res) => {
     const { merchantid } = req.headers;
+    const { sku } = req.params;
 
-    const { pid } = req.params;
     const pagination = _.pick(req.query, paginations);
     _.each(_.keys(pagination), (key) => {
         pagination[key] = parseInt(pagination[key]);
     });
-    similarity.findOne({ pid })
-        .then(function (similarities) {
-            if (similarities) {
-                console.log(similarities);
-                const pids = similarities.sim_items.slice(0, pagination.limit).map(item => item.pid);
-                return similarity.find({ pid: { $in: pids }});
+
+    similarity.findOne({
+        merchantId: merchantid,
+        sku: sku,
+    })
+        .then(function (recommendation) {
+            if (recommendation) {
+                res.send(recommendation.sim_items.slice(0, pagination.limit));
             }
             else {
-                throw new Error('Not Found');
+                res.status(404).send('Not found');
             }
         })
-        .then(function (similarities) {
-            // console.log(similarities.map((item) => item.pid));
-            res.send(similarities.map((item) => item.pid));
-        })
         .catch(function (err) {
+            console.log(err);
             res.status(404).send(err.message);
         });
+};
+
+//most clicked
+const getTrending = (req, res) => {
+    const { merchantid } = req.headers;
+
+};
+
+
+const getBestSelling = (req, res) => {
+    const { merchantid } = req.headers;
+
+};
+
+//least selling
+const getInventory = (req, res) => {
+    const { merchantid } = req.headers;
+
 };
 
 const getFeatured = (req, res) => {

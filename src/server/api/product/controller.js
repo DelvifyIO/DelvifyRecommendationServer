@@ -19,8 +19,8 @@ const getProducts = (req, res) => {
     });
     model.Product.findAndCountAll({
         where,
-        attributes: ['id', 'sku', 'name', 'price', 'categoryId', 'currencyId'],
-        include: ['images', 'category', 'currency'],
+        attributes: ['id', 'sku', 'name', 'price', 'categoryId', 'image_url'],
+        include: ['category'],
         ...pagination,
     })
         .then(function (product) {
@@ -40,7 +40,7 @@ const getProduct = (req, res) => {
     const { merchantid } = req.headers;
     const model = models[merchantid];
     model.Product.findByPk(req.params.id, {
-        include: ['images', 'category', 'currency'],
+        include: ['category'],
     })
         .then(function (product) {
             if (product) {
@@ -60,7 +60,7 @@ const getProductBySku = (req, res) => {
     const model = models[merchantid];
     model.Product.findOne({
         where: { sku: req.query.sku },
-        include: ['images', 'category', 'currency'],
+        include: ['category'],
     })
         .then(function (product) {
             if (product) {
@@ -84,7 +84,7 @@ const getProductBySkus = (req, res) => {
     });
     model.Product.findAndCountAll({
         where: { sku: req.query.skus },
-        include: ['images', 'category', 'currency'],
+        include: ['category'],
         ...pagination,
     })
         .then(function (product) {

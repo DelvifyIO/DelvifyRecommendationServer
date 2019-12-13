@@ -11,5 +11,6 @@ router.use(function(req, res, next) {
 
 router.get('/', controller.getConfig);
 router.post('/', controller.insertConfig);
+router.post('/attributes', controller.insertAttributes);
 
 module.exports = router;

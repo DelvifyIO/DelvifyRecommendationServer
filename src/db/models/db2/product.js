@@ -9,6 +9,10 @@ module.exports = (sequelize, DataTypes) => {
         price: DataTypes.FLOAT,
         from_price: DataTypes.FLOAT,
         sku: DataTypes.STRING,
+        image_url: DataTypes.STRING,
+        product_url: DataTypes.STRING,
+        currency: DataTypes.STRING,
+        similar_sku: DataTypes.STRING,
 
         createdAt: {
             type: DataTypes.DATE,
@@ -23,9 +27,7 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     Product.associate = function(models) {
-        models.db2.Product.hasMany(models.db2.Image, { as: 'images', constraints: false });
         models.db2.Product.belongsTo(models.db2.Category, { as: 'category', constraints: false });
-        models.db2.Product.belongsTo(models.db2.Currency, { as: 'currency', constraints: false });
     };
 
     return Product;

@@ -2,13 +2,13 @@ let mongoose = require('mongoose');
 let timestampPlugin = require('./plugins/timestamp');
 
 let widgetSchema = new mongoose.Schema({
-    merchantId: String,
     location: {
         type: String,
         enum: ['HOME_PAGE', 'PRODUCT_PAGE', 'CART_PAGE'],
     },
     noOfItems: Number,
     heading: String,
+    tagId: String,
     type: {
         type: String,
         enum: ['SIMILAR', 'TRENDING', 'BEST_SELLING', 'INVENTORY'],
@@ -31,11 +31,14 @@ let attributeSchema = new mongoose.Schema({
 });
 
 let configSchema = new mongoose.Schema({
+    merchantId: String,
     widgets: [widgetSchema],
     createdBy: Number,
     addToCartButton: addToCartButtonSchema,
     currencies: [currencySchema],
     themedColor: String,
+    fontSize: Number,
+    fontFamily: String,
     gaUtmCode: String,
     affiliatePrefix: String,
     attributes: [attributeSchema],

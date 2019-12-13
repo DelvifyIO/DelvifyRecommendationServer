@@ -31,8 +31,8 @@ module.exports = function (app) {
     app.use('/api/admin', require('./api/admin'));
     app.use('/api/js', require('./api/js'));
 
-    app.use('/api/master/register', require('./master/register'));
-    app.use('/api/master/client', require('./master/client'));
+    app.use('/api/master/register', require('./api/register'));
+    app.use('/api/master/client', require('./api/client'));
 
     // frontend routes =========================================================
     // route to handle all angular requests

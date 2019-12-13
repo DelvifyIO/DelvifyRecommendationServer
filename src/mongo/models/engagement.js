@@ -18,11 +18,11 @@ let engagementSchema = new mongoose.Schema({
     },
     location: {
         type: String,
-        enum: ['HOME', 'PRODUCT_DETAILS', 'PRODUCT_DETAILS_FEATURED', 'CART'],
+        enum: ['HOME_PAGE', 'PRODUCT_PAGE', 'CART_PAGE'],
     },
     source: {
       type: String,
-      enum: ['SIMILAR', 'MOST_POPULAR', 'LEAST_POPULAR', 'CUSTOM'],
+      enum: ['SIMILAR', 'TRENDING', 'BEST_SELLING', 'INVENTORY'],
     },
     geo_location: String,
     device: {

@@ -27,7 +27,7 @@ const addAdmin = (req, res) => {
     newAdmin.username = username;
     newAdmin.createdBy = createdBy;
     newAdmin.setPassword(password);
-    admin.findOne({ username })
+    admin.findOne({ merchantId: merchantid, username })
         .then((foundAdmins) => {
             if (foundAdmins) {
                 return res.status(400).send({ message: 'Username has already been taken' });

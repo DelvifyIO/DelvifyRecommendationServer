@@ -40,7 +40,7 @@ module.exports = {
     mongoose: {
         development: {
             server: 'localhost:27017',
-            database: 'master',
+            database: 'delvify',
         },
     }
 };

@@ -7,7 +7,7 @@ const paginations = ['limit', 'offset'];
 
 const getUsers = (req, res) => {
     const { merchantid } = req.headers;
-    const where = _.pick(req.query, queries);
+    const where = { merchantId: merchantid, ..._.pick(req.query, queries) };
     const action = where.uid ?
         user.findOne({
             uid: where.uid
@@ -35,7 +35,7 @@ const getUsers = (req, res) => {
 
 const getUserCount = (req, res) => {
     const { merchantid } = req.headers;
-    const where = _.pick(req.query, queries);
+    const where = { merchantId: merchantid, ..._.pick(req.query, queries) };
 
     user.estimatedDocumentCount(where)
         .then((result) => {
@@ -47,9 +47,10 @@ const getUserCount = (req, res) => {
 };
 
 const insertUser = (req, res) => {
+    const { merchantid } = req.headers;
     const { uid } = req.body;
     user.findOneAndUpdate(
-        { uid },
+        { merchantId: merchantid, uid },
         req.body,
         { new: true, upsert: true },
     )

@@ -9,6 +9,9 @@ let clientSchema = new mongoose.Schema({
     merchantId: String,
     apiKey: String,
     salt: String,
+    contactNumber: String,
+    billingAddress: String,
+    billingEmail: String,
 });
 
 clientSchema.plugin(timestampPlugin);

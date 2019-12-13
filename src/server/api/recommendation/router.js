@@ -9,7 +9,7 @@ router.use(function(req, res, next) {
     next(); // make sure we go to the next routes and don't stop here
 });
 
-router.get('/similar/:pid', controller.getSimilarities);
+router.get('/similar/:sku', controller.getSimilarities);
 router.get('/featured', controller.getFeatured);
 router.get('/cart', controller.getFeatured);
 

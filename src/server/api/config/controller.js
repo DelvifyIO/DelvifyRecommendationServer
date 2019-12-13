@@ -9,13 +9,27 @@ const getConfig = (req, res) => {
             if (result) {
                 res.send(result);
             } else {
-                res.status(404).send({ message: 'Not found' });
+                res.send({});
             }
+        })
+        .catch(function (err) {
+            console.log(err);
+            res.status(404).send(err.message);
+        });
+};
+
+const insertAttributes = (req, res) => {
+    const { merchantid } = req.headers;
+
+    config.findOneAndUpdate({ merchantId: merchantid }, { attributes: req.body.attributes}, { new: true })
+        .sort({ createdAt: -1 })
+        .then((result) => {
+            res.send(result);
         })
         .catch(function (err) {
             res.status(404).send(err.message);
         });
-};
+}
 
 const insertConfig = (req, res) => {
     const { merchantid } = req.headers;
@@ -25,19 +39,25 @@ const insertConfig = (req, res) => {
         .then((result) => {
             const prevConfig = result || {};
 
-            const widgets = req.body.widgets || prevConfig.widgets;
-            const addToCartButton = req.body.addToCartButton || prevConfig.addToCartButton;
-            const currencies = req.body.currencies || prevConfig.currencies;
-            const themedColor = req.body.themedColor || prevConfig.themedColor;
-            const gaUtmCode = req.body.gaUtmCode || prevConfig.gaUtmCode;
-            const affiliatePrefix = req.body.affiliatePrefix || prevConfig.affiliatePrefix;
+            const merchantId = merchantid;
+            const widgets = req.body.widgets;
+            const addToCartButton = req.body.addToCartButton;
+            const currencies = req.body.currencies;
+            const themedColor = req.body.themedColor;
+            const fontSize = req.body.fontSize;
+            const fontFamily = req.body.fontFamily;
+            const gaUtmCode = req.body.gaUtmCode;
+            const affiliatePrefix = req.body.affiliatePrefix;
             const attributes = req.body.attributes || prevConfig.attributes;
 
             const newConfig = new config({
+                merchantId,
                 widgets,
                 addToCartButton,
                 currencies,
                 themedColor,
+                fontSize,
+                fontFamily,
                 gaUtmCode,
                 affiliatePrefix,
                 attributes,
@@ -60,4 +80,5 @@ const insertConfig = (req, res) => {
 module.exports = {
     getConfig,
     insertConfig,
+    insertAttributes,
 };
