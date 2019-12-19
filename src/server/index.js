@@ -31,6 +31,7 @@ app.use('/api', expressJwt({ secret: process.env.WEB_SECRET })
         /^\/api\/recommendation\//,
         '/api/js',
         /^\/api\/query/,
+        /^\/api\/password/,
     ]}));
 
 // routes ==================================================
