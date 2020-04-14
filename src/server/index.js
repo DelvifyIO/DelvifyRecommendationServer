@@ -43,7 +43,14 @@ require('./route')(app); // pass our application into our routes
 // start app ===============================================
 
 models.sequelize.sync().then(function () {
-        app.listen(port);
+        if (process.env.NODE_ENV === 'production') {
+                https.createServer({
+                        key: fs.readFileSync('ssl/reco.delvify.io.key'),
+                        cert: fs.readFileSync('ssl/bundle.crt'),
+                }, app).listen(port);
+        } else {
+                app.listen(port);
+        }
         console.log('Listening to: ' + port); 			// shoutout to the user
 });
 
