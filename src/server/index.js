@@ -9,6 +9,8 @@ var path               = require('path');
 var passport           = require('passport');
 var { passportConfig } = require('../config/passort');
 var models             = require('../db/models');
+var fs                 = require('fs');
+var https              = require('https');
 var app                = express();
 
 // configuration ===========================================
