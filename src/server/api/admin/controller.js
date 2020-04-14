@@ -6,7 +6,7 @@ const getAdmins = (req, res) => {
     admin.find({ merchantId: merchantid })
         .then((admins) => {
             if (admins && admin.length > 0) {
-                return res.send(admins.filter((admin) => admin.username !== 'root'));
+                return res.send(admins.filter((admin) => admin.role !== 'ROOT'));
             } else {
                 return res.status(404).send('Not found');
             }

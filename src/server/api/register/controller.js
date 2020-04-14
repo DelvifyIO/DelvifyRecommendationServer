@@ -1,6 +1,8 @@
 import { authValidator } from '../../validation';
 import { client, admin } from '../../../mongo/models';
 import adminModel from "../../../mongo/models/admin";
+import Http from "../../utils/Http";
+const http = new Http();
 
 const checkMerchantIdUnique = (merchantId) => {
     return client.findOne({ merchantId })
@@ -34,12 +36,14 @@ const getMerchantId = (req, res) => {
 const createClient = (req, res) => {
     const { name, email, merchantId, username, password } = req.body;
 
-    admin.findOne({ username })
+    admin.findOne({ username, merchantId: null })
         .then((foundAdmin) => {
             if (!foundAdmin) {
-                return res.status(401).send('Username not found');
+                const error = new Error('Username not found');
+                error.statusCode = 401;
+                throw error;
             }
-            if(foundAdmin.validPassword(password)) {
+            else if(foundAdmin.validPassword(password)) {
                 const newClient = new client();
                 newClient.name = name;
                 newClient.email = email;
@@ -47,7 +51,9 @@ const createClient = (req, res) => {
                 newClient.setApiKey(merchantId);
                 return newClient.save();
             } else {
-                res.status(401).send('Incorrect password');
+                const error = new Error('Incorrect password');
+                error.statusCode = 401;
+                throw error;
             }
         })
         .then((newClient) => {
@@ -65,10 +71,10 @@ const createClient = (req, res) => {
             clientAdmin.setPassword('admin');
             clientAdmin.save();
             //TODO: send newClient.apiKey
-            res.send(newClient);
+            res.status(200).send(newClient);
         })
         .catch((err) => {
-            res.status(400).send(err);
+            res.status(err.statusCode || 400).send(err.message);
         });
 };
 

@@ -1,13 +1,11 @@
 import express from 'express';
-import models from '../../../db/models';
+import model from '../../../db/models';
 import { Op } from "sequelize";
 
 const queries = ['categoryId', 'price', 'keywords', 'sku'];
 const paginations = ['limit', 'offset'];
 
 const searchProducts = (req, res) => {
-    const { merchantid } = req.headers;
-    const model = models[merchantid];
     const keyword = req.query.keyword;
     const pagination = _.pick(req.query, paginations);
     _.each(_.keys(pagination), (key) => {
@@ -19,8 +17,8 @@ const searchProducts = (req, res) => {
         where: {
             [Op.and]: queryTokens.map((token) => ({ name: { [Op.like]: token } }))
         },
-        attributes: ['id', 'sku', 'name', 'price', 'categoryId', 'currencyId'],
-        include: ['images', 'category', 'currency'],
+        attributes: ['id', 'sku', 'name', 'price', 'categoryId', 'currency', 'image_url'],
+        include: ['category'],
         ...pagination,
     })
         .then(function(product) {
@@ -37,8 +35,6 @@ const searchProducts = (req, res) => {
 };
 
 const getProducts = (req, res) => {
-    const { merchantid } = req.headers;
-    const model = models[merchantid];
     if (req.query.sku) {
         return getProductBySku(req, res);
     } else if (req.query.skus) {
@@ -69,8 +65,6 @@ const getProducts = (req, res) => {
 };
 
 const getProduct = (req, res) => {
-    const { merchantid } = req.headers;
-    const model = models[merchantid];
     model.Product.findByPk(req.params.id, {
         include: ['category'],
     })
@@ -88,8 +82,6 @@ const getProduct = (req, res) => {
 };
 
 const getProductBySku = (req, res) => {
-    const { merchantid } = req.headers;
-    const model = models[merchantid];
     model.Product.findOne({
         where: { sku: req.query.sku },
         include: ['category'],
@@ -108,14 +100,13 @@ const getProductBySku = (req, res) => {
 };
 
 const getProductBySkus = (req, res) => {
-    const { merchantid } = req.headers;
-    const model = models[merchantid];
     const pagination = _.pick(req.query, paginations);
+    const skus = req.query.skus;
     _.each(_.keys(pagination), (key) => {
         pagination[key] = parseInt(pagination[key]);
     });
     model.Product.findAndCountAll({
-        where: { sku: req.query.skus },
+        where: { sku: skus },
         include: ['category'],
         ...pagination,
     })

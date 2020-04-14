@@ -34,7 +34,7 @@ const getEngagements = (req, res) => {
 };
 
 const getEngagementCount = (req, res) => {
-    const { merchantid } = req.headers;
+    const { merchantid } = req.query;
     let group = {}, timeRangeMatch = {}, groupKey = '';
     let labels = [];
     let match = {};
@@ -208,7 +208,7 @@ const getEngagementCount = (req, res) => {
 
 
 const getItemEngagement = (req, res) => {
-    const { merchantid } = req.headers;
+    const { merchantid } = req.query;
     let match = { merchantId: merchantid }, timeRangeMatch = {}, sort = {}, paginationPipeline = {}, key = 'pid';
     const { from, to, sortBy, order } = req.query;
 

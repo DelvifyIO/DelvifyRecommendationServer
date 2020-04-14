@@ -1,11 +1,9 @@
 import express from 'express';
-import models from '../../../db/models';
+import model from '../../../db/models';
 
 const paginations = ['limit', 'offset'];
 
 const getCategories = (req, res) => {
-    const { merchantid } = req.headers;
-    const model = models[merchantid];
     model.Category.findAll()
         .then(function (categories) {
             if (categories) {
@@ -21,8 +19,6 @@ const getCategories = (req, res) => {
 };
 
 const getCategoryProducts = (req, res) => {
-    const { merchantid } = req.headers;
-    const model = models[merchantid];
     const pagination = _.pick(req.query, paginations);
     _.each(_.keys(pagination), (key) => {
         pagination[key] = parseInt(pagination[key]);

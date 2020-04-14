@@ -1,13 +1,13 @@
 var express = require('express');
 var moment = require('moment');
+const { query } = require('../../../mongo/models');
 
 const queries = ['oid', 'pid', 'sku', 'uid'];
 const paginations = ['limit', 'offset'];
 
 const getQueries = (req, res) => {
     const { merchantid } = req.params;
-    const { query } = require(`../../../mongo/models/${merchantid}`);
-    query.find()
+    query.find({ merchantId: merchantid })
         .then(function (queries) {
             if (queries) {
                 res.send(queries.map((query) => query.query));
@@ -23,10 +23,10 @@ const getQueries = (req, res) => {
 
 const insertQuery = (req, res) => {
     const { merchantid } = req.headers;
-    const { query } = require(`../../../mongo/models/${merchantid}`);
     const { query: queryString } = req.body;
 
     const newQuery = new query();
+    newQuery.merchantId = merchantid;
     newQuery.query = queryString;
     newQuery.save()
         .then((savedQuery) => {

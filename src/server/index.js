@@ -41,13 +41,10 @@ app.use('/api', expressJwt({ secret: process.env.WEB_SECRET })
 require('./route')(app); // pass our application into our routes
 
 // start app ===============================================
-const syncs = [];
-Object.keys(models.sequelize).forEach((db) => {
-    syncs.push((models.sequelize[db]).sync());
-});
-Promise.all(syncs)
-    .then(() => {
+
+models.sequelize.sync().then(function () {
         app.listen(port);
         console.log('Listening to: ' + port); 			// shoutout to the user
-    });
+});
+
 exports = module.exports = app; 						// expose app

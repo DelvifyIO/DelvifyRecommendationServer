@@ -6,9 +6,9 @@ import config from './config';
 import admin from './admin';
 import engagement from './engagement';
 import client from './client';
+import query from "./query";
 
-const env       = process.env.NODE_ENV || 'development';
-const dbConfig  = require(__dirname + '/../../config/database.js')['mongoose'][env];
+const dbConfig  = require(__dirname + '/../config/config.js');
 
 let mongoose = require('mongoose');
 
@@ -40,4 +40,5 @@ export {
     admin,
     engagement,
     client,
+    query,
 }

@@ -2,7 +2,7 @@ var express = require('express');
 const { config } = require(`../../../mongo/models`);
 
 const getConfig = (req, res) => {
-    const { merchantid } = req.headers;
+    const { merchantid } = req.query;
     config.findOne({ merchantId: merchantid })
         .sort({ createdAt: -1 })
         .then((result) => {
@@ -19,7 +19,7 @@ const getConfig = (req, res) => {
 };
 
 const insertAttributes = (req, res) => {
-    const { merchantid } = req.headers;
+    const { merchantid } = req.query;
 
     config.findOneAndUpdate({ merchantId: merchantid }, { attributes: req.body.attributes}, { new: true })
         .sort({ createdAt: -1 })
@@ -32,7 +32,7 @@ const insertAttributes = (req, res) => {
 };
 
 const insertConfig = (req, res) => {
-    const { merchantid } = req.headers;
+    const { merchantid } = req.query;
 
     config.findOne({ merchantId: merchantid })
         .sort({ createdAt: -1 })

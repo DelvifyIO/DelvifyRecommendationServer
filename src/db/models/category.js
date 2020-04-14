@@ -1,9 +1,8 @@
 'use strict';
 
 module.exports = (sequelize, DataTypes) => {
-    var Currency = sequelize.define('Currency', {
+    var Category = sequelize.define('Category', {
         name: DataTypes.STRING,
-        sign: DataTypes.STRING,
 
         createdAt: {
             type: DataTypes.DATE,
@@ -17,8 +16,9 @@ module.exports = (sequelize, DataTypes) => {
         },
     });
 
-    Currency.associate = function(models) {
+    Category.associate = function(model) {
+        model.Category.hasMany(model.Product, { as: 'products', constraints: false, foreignKey: 'categoryId' });
     };
 
-    return Currency;
+    return Category;
 };

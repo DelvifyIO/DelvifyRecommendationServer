@@ -10,7 +10,8 @@ router.use(function(req, res, next) {
 });
 
 router.get('/similar/:sku', controller.getSimilarities);
-router.get('/featured', controller.getFeatured);
-router.get('/cart', controller.getFeatured);
+router.get('/trending', controller.getTrending);
+router.get('/bestselling', controller.getBestSelling);
+router.get('/inventory', controller.getInventory);
 
 module.exports = router;

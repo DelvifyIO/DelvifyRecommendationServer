@@ -26,8 +26,8 @@ module.exports = (sequelize, DataTypes) => {
         },
     });
 
-    Product.associate = function(models) {
-        models.db2.Product.belongsTo(models.db2.Category, { as: 'category', constraints: false });
+    Product.associate = function(model) {
+        model.Product.belongsTo(model.Category, { as: 'category', constraints: false });
     };
 
     return Product;

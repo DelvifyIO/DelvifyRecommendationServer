@@ -7,7 +7,6 @@ const paginations = ['limit', 'offset'];
 
 const getAllOrders = (req, res) => {
     const { merchantid } = req.headers;
-    const where = _.pick(req.query, queries);
     const where = { merchantId: merchantid, ..._.pick(req.query, queries) };
     const action = where.pid ?
         order.findOne(where) :

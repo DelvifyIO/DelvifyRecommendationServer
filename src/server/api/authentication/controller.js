@@ -10,6 +10,7 @@ const login = (req, res) => {
     }
     admin.findOne({ username, merchantId: merchantid })
         .then((foundAdmin) => {
+            console.log('foundAdmin', foundAdmin);
             if (!foundAdmin) {
                 return res.status(401).send('Username not found');
             }
