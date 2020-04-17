@@ -21,30 +21,51 @@ const searchByText = (req, res) => {
 const searchByImage = (req, res) => {
     if (req.file) {
         const image = req.file;
-        console.log(image);
-        const formData = { file: image.buffer };
-        // formData.append('file', image.buffer);
 
-        request.post({ url: 'http://13.67.88.182:5000/get_imageskus' }, (err, response, body) => {
+        const formData = { file: {
+            value: image.buffer,
+                options: {
+                    filename: image.originalname
+                },
+        } };
+
+        request.post({ url: 'http://13.67.88.182:5000/get_imageskus/', formData: formData }, (err, httpResponse, body) => {
             if (err) {
                 return res.status(400).send(err.message);
             }
-            res.send(response);
+            const response = JSON.parse(body);
+            const result = response.skus.map((sku) => sku.split('.')[0]);
+            res.send({ skus: result });
         })
-        // fetch('http://13.67.88.182:5000/get_imageskus', { method: 'POST', body: formData })
-        //     .then((response) => response.text())
-        //     .then(response => {
-        //         res.send(response);
-        //     })
-        //     .catch((err) => {
-        //         res.status(400).send(err.message);
-        //     })
     } else {
-        res.status(400).send('No search query');
+        res.status(400).send('No image');
+    }
+};
+
+const recognizeAudio = (req, res) => {
+    if (req.file) {
+        const audio = req.file;
+
+        const formData = { audio: {
+            value: audio.buffer,
+                options: {
+                    filename: audio.originalname
+                },
+        } };
+
+        request.post({ url: 'http://18.162.113.148:3005/deepinfer', formData: formData }, (err, httpResponse, body) => {
+            if (err) {
+                return res.status(400).send(err.message);
+            }
+            res.send(body);
+        })
+    } else {
+        res.status(400).send('No audio');
     }
 };
 
 module.exports = {
     searchByText,
     searchByImage,
+    recognizeAudio,
 };
