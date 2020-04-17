@@ -34,6 +34,7 @@ app.use('/api', expressJwt({ secret: process.env.WEB_SECRET })
         '/api/js',
         /^\/api\/query/,
         /^\/api\/password/,
+        /^\/api\/ai/,
         '/api/engagement/item',
         /^\/api\/master\/register/,
         /^\/api\/master\/client/,
