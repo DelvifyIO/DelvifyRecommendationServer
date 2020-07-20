@@ -1,63 +1,146 @@
 import express from 'express';
 
-// const { similarity, config } = models;
 const paginations = ['limit', 'offset'];
+const { similarity, engagement } = require(`../../../mongo/models`);
 
 const getSimilarities = (req, res) => {
-    const { merchantid } = req.headers;
-    const { similarity, config } = require(`../../../mongo/models/${merchantid}`);
+    const { merchantid } = req.query;
+    const { sku } = req.params;
 
-    const { pid } = req.params;
     const pagination = _.pick(req.query, paginations);
     _.each(_.keys(pagination), (key) => {
         pagination[key] = parseInt(pagination[key]);
     });
-    similarity.findOne({ pid })
-        .then(function (similarities) {
-            if (similarities) {
-                console.log(similarities);
-                const pids = similarities.sim_items.slice(0, pagination.limit).map(item => item.pid);
-                return similarity.find({ pid: { $in: pids }});
+    similarity.findOne({
+        merchantId: merchantid,
+        sku: sku,
+    })
+        .then(function (item) {
+            if (item) {
+                const skus = item.similar_sku.slice(0, pagination.limit);
+                return similarity.find({ merchantId: merchantid, sku: { $in: skus } },
+                    ['sku', 'name', 'description', 'image_url', 'price', 'currency', 'product_url']);
             }
             else {
-                throw new Error('Not Found');
+                res.status(404).send('Not found');
             }
         })
-        .then(function (similarities) {
-            // console.log(similarities.map((item) => item.pid));
-            res.send(similarities.map((item) => item.pid));
+        .then((items) => {
+            res.send(items);
         })
         .catch(function (err) {
+            console.log(err);
             res.status(404).send(err.message);
         });
 };
 
-const getFeatured = (req, res) => {
-    const { merchantid } = req.headers;
-    const { similarity, config } = require(`../../../mongo/models/${merchantid}`);
-
+//most clicked
+const getTrending = (req, res) => {
+    const { merchantid } = req.query;
     const pagination = _.pick(req.query, paginations);
     _.each(_.keys(pagination), (key) => {
         pagination[key] = parseInt(pagination[key]);
     });
-    config.findOne()
-        .sort({ createdAt: -1 })
+
+    getItemEngagement(merchantid, 'CLICK', 'desc', pagination.limit)
         .then((result) => {
-            const featuredItems = result.featuredItems;
-            const pids = [];
-            while(featuredItems.length !== 0) {
-                const rand = Math.floor(Math.random() * featuredItems.length);
-                pids.push(featuredItems[rand]);
-                featuredItems.splice(rand, 1);
-            }
-            return res.send(pids.slice(0, pagination.limit));
+            const skus = result.map((item) => item.pid);
+            return similarity.find({ merchantId: merchantid, sku: { $in: skus } },
+                ['sku', 'name', 'description', 'image_url', 'price', 'currency', 'product_url'])
+        })
+        .then((result) => {
+            res.send(result);
         })
         .catch(function (err) {
-            return res.status(404).send(err.message);
+            console.log(err);
+            res.status(404).send(err.message);
         });
+};
+
+
+const getBestSelling = (req, res) => {
+    const { merchantid } = req.query;
+    const pagination = _.pick(req.query, paginations);
+    _.each(_.keys(pagination), (key) => {
+        pagination[key] = parseInt(pagination[key]);
+    });
+
+    getItemEngagement(merchantid, 'PURCHASE', 'desc', pagination.limit)
+        .then((result) => {
+            const skus = result.map((item) => item.pid);
+            return similarity.find({ merchantId: merchantid, sku: { $in: skus } },
+                ['sku', 'name', 'description', 'image_url', 'price', 'currency', 'product_url'])
+        })
+        .then((result) => {
+            res.send(result);
+        })
+        .catch(function (err) {
+            console.log(err);
+            res.status(404).send(err.message);
+        });
+};
+
+//least selling
+const getInventory = (req, res) => {
+    const { merchantid } = req.query;
+    const pagination = _.pick(req.query, paginations);
+    _.each(_.keys(pagination), (key) => {
+        pagination[key] = parseInt(pagination[key]);
+    });
+
+    getItemEngagement(merchantid, 'PURCHASE', 'asc', pagination.limit)
+        .then((result) => {
+            const skus = result.map((item) => item.pid);
+            return similarity.find({ merchantId: merchantid, sku: { $in: skus } },
+                ['sku', 'name', 'description', 'image_url', 'price', 'currency', 'product_url'])
+        })
+        .then((result) => {
+            res.send(result);
+        })
+        .catch(function (err) {
+            console.log(err);
+            res.status(404).send(err.message);
+        });
+};
+
+
+
+const getItemEngagement = (merchantid, sortBy, order, limit) => {
+    let match = { merchantId: merchantid, type: sortBy };
+    match['$and'] = [{ 'pid': { $ne: null }}];
+
+    const sort = _.fromPairs([['count', order === 'desc' ? -1 : 1]]);
+
+    const aggragation = [
+        { $match: match },
+        { $group: {
+                _id:{
+                    pid: '$pid',
+                    type: '$type',
+                },
+                count: { $sum: 1 },
+            }},
+        { $group: {
+                _id: { pid: '$_id.pid' },
+                count: { $mergeObjects: { $arrayToObject: [[[{ $toString: '$_id.type' }, '$count']]] } },
+        }   },
+        {
+            $project: {
+                _id: 0,
+                pid: '$_id.pid',
+                count: `$count.${sortBy}`
+            }
+        },
+        { $sort: sort },
+        { $limit: limit },
+    ];
+    return engagement.aggregate(aggragation)
+        .allowDiskUse(true);
 };
 
 module.exports = {
     getSimilarities,
-    getFeatured,
+    getTrending,
+    getInventory,
+    getBestSelling,
 };

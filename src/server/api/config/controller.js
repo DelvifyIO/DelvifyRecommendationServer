@@ -1,16 +1,30 @@
 var express = require('express');
+const { config } = require(`../../../mongo/models`);
 
 const getConfig = (req, res) => {
-    const { merchantid } = req.headers;
-    const {config} = require(`../../../mongo/models/${merchantid}`);
-    config.findOne()
+    const { merchantid } = req.query;
+    config.findOne({ merchantId: merchantid })
         .sort({ createdAt: -1 })
         .then((result) => {
             if (result) {
                 res.send(result);
             } else {
-                res.status(404).send({ message: 'Not found' });
+                res.send({});
             }
+        })
+        .catch(function (err) {
+            console.log(err);
+            res.status(404).send(err.message);
+        });
+};
+
+const insertAttributes = (req, res) => {
+    const { merchantid } = req.query;
+
+    config.findOneAndUpdate({ merchantId: merchantid }, { attributes: req.body.attributes}, { new: true })
+        .sort({ createdAt: -1 })
+        .then((result) => {
+            res.send(result);
         })
         .catch(function (err) {
             res.status(404).send(err.message);
@@ -18,18 +32,43 @@ const getConfig = (req, res) => {
 };
 
 const insertConfig = (req, res) => {
-    const { merchantid } = req.headers;
-    const {config} = require(`../../../mongo/models/${merchantid}`);
-    const placements = req.body.placements;
-    const featuredItems = req.body.featuredItems;
+    const { merchantid } = req.query;
 
-    const newConfig = new config({
-        placements,
-        featuredItems,
-    });
-    newConfig.save()
+    config.findOne({ merchantId: merchantid })
+        .sort({ createdAt: -1 })
         .then((result) => {
-            res.send(result);
+            const prevConfig = result || {};
+
+            const merchantId = merchantid;
+            const widgets = req.body.widgets;
+            const addToCartButton = req.body.addToCartButton;
+            const currencies = req.body.currencies;
+            const themedColor = req.body.themedColor;
+            const fontSize = req.body.fontSize;
+            const fontFamily = req.body.fontFamily;
+            const gaUtmCode = req.body.gaUtmCode;
+            const affiliatePrefix = req.body.affiliatePrefix;
+            const attributes = req.body.attributes || prevConfig.attributes;
+
+            const newConfig = new config({
+                merchantId,
+                widgets,
+                addToCartButton,
+                currencies,
+                themedColor,
+                fontSize,
+                fontFamily,
+                gaUtmCode,
+                affiliatePrefix,
+                attributes,
+            });
+            newConfig.save()
+                .then((result) => {
+                    res.send(result);
+                })
+                .catch(function (err) {
+                    res.status(404).send(err.message);
+                });
         })
         .catch(function (err) {
             res.status(404).send(err.message);
@@ -39,4 +78,5 @@ const insertConfig = (req, res) => {
 module.exports = {
     getConfig,
     insertConfig,
+    insertAttributes,
 };

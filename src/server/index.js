@@ -9,6 +9,8 @@ var path               = require('path');
 var passport           = require('passport');
 var { passportConfig } = require('../config/passort');
 var models             = require('../db/models');
+var fs                 = require('fs');
+var https              = require('https');
 var app                = express();
 
 // configuration ===========================================
@@ -24,25 +26,35 @@ app.use('/api', expressJwt({ secret: process.env.WEB_SECRET })
     .unless({ path: [
         '/api/auth/login',
         /^\/api\/category/,
-        '/api/product',
+        /^\/api\/product/,
         { url: /^\/api\/config/, methods: ['GET', 'OPTIONS'] },
         { url: '/api/engagement', methods: ['POST', 'OPTIONS'] },
         { url: '/api/order', methods: ['POST', 'OPTIONS'] },
         /^\/api\/recommendation\//,
         '/api/js',
+        /^\/api\/query/,
+        /^\/api\/password/,
+        /^\/api\/ai/,
+        '/api/engagement/item',
+        /^\/api\/master\/register/,
+        /^\/api\/master\/client/,
     ]}));
 
 // routes ==================================================
 require('./route')(app); // pass our application into our routes
 
 // start app ===============================================
-const syncs = [];
-Object.keys(models.sequelize).forEach((db) => {
-    syncs.push((models.sequelize[db]).sync());
-});
-Promise.all(syncs)
-    .then(() => {
-        app.listen(port);
+
+models.sequelize.sync().then(function () {
+        if (process.env.NODE_ENV === 'production') {
+                https.createServer({
+                        key: fs.readFileSync('ssl/reco.delvify.io.key'),
+                        cert: fs.readFileSync('ssl/bundle.crt'),
+                }, app).listen(port);
+        } else {
+                app.listen(port);
+        }
         console.log('Listening to: ' + port); 			// shoutout to the user
-    });
+});
+
 exports = module.exports = app; 						// expose app

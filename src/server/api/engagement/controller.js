@@ -1,5 +1,6 @@
 var express = require('express');
 var moment = require('moment');
+const { engagement } = require(`../../../mongo/models`);
 
 const queries = ['pid', 'type'];
 const timeRange = ['from', 'to'];
@@ -7,8 +8,7 @@ const paginations = ['limit', 'offset'];
 
 const getEngagements = (req, res) => {
     const { merchantid } = req.headers;
-    const { engagement } = require(`../../../mongo/models/${merchantid}`);
-    const where = _.pick(req.query, queries);
+    const where = { merchantId: merchantid, ..._.pick(req.query, queries) };
     const timeFilter = _.pick(req.query, queries);
     const action = where.pid ?
         engagement.findOne(where) :
@@ -34,8 +34,7 @@ const getEngagements = (req, res) => {
 };
 
 const getEngagementCount = (req, res) => {
-    const { merchantid } = req.headers;
-    const { engagement } = require(`../../../mongo/models/${merchantid}`);
+    const { merchantid } = req.query;
     let group = {}, timeRangeMatch = {}, groupKey = '';
     let labels = [];
     let match = {};
@@ -112,7 +111,7 @@ const getEngagementCount = (req, res) => {
         timeRangeMatch['$lte'] = moment().endOf('hour').toDate();
         timeRangeMatch['$gte'] = defaultRange.startOf('hour').toDate();
     }
-    match = { 'createdAt': timeRangeMatch };
+    match = { merchantId: merchantid, 'createdAt': timeRangeMatch };
 
     aggragation = [
         { $match: match },
@@ -209,9 +208,8 @@ const getEngagementCount = (req, res) => {
 
 
 const getItemEngagement = (req, res) => {
-    const { merchantid } = req.headers;
-    const { engagement } = require(`../../../mongo/models/${merchantid}`);
-    let match = {}, timeRangeMatch = {}, sort = {}, paginationPipeline = {}, key = 'pid';
+    const { merchantid } = req.query;
+    let match = { merchantId: merchantid }, timeRangeMatch = {}, sort = {}, paginationPipeline = {}, key = 'pid';
     const { from, to, sortBy, order } = req.query;
 
     const pagination = _.pick(req.query, paginations);
@@ -302,9 +300,9 @@ const getItemEngagement = (req, res) => {
 
 const insertEngagement = (req, res) => {
     const { merchantid } = req.headers;
-    const {engagement} = require(`../../../mongo/models/${merchantid}`);
     const { pid, type, location, source, geo_location, device, uid } = req.body;
     const newEngagement = new engagement({
+        merchantId: merchantid,
         pid,
         type,
         location,
