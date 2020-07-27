@@ -6,7 +6,6 @@ import {Op} from "sequelize";
 
 const searchDemo = (req, res) => {
     const { keyword } = req.query;
-    console.log(keyword);
     const queryTokens = _.map(keyword.split(' '), (token) => `%${_.lowerCase(token)}%`);
     console.log(queryTokens);
     const searchWithAI = fetch(`http://13.67.88.182:5001/computeSimilarity?text=${keyword}`).then((response) => response.json());
