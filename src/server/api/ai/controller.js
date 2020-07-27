@@ -1,6 +1,31 @@
 import fetch from 'node-fetch';
 import FormData from 'form-data';
 import request from 'request';
+import model from "../../../db/models";
+import {Op} from "sequelize";
+
+const searchDemo = (req, res) => {
+    const { keyword } = req.query;
+    console.log(keyword);
+    const queryTokens = _.map(keyword.split(' '), (token) => `%${_.lowerCase(token)}%`);
+    console.log(queryTokens);
+    const searchWithAI = fetch(`http://13.67.88.182:5001/computeSimilarity?text=${keyword}`).then((response) => response.json());
+    const searchWithoutAI = model.Product.findAll({
+            where: {
+                [Op.and]: queryTokens.map((token) => ({ name: { [Op.like]: token } }))
+            },
+            attributes: ['sku'],
+        });
+    Promise.all([searchWithAI, searchWithoutAI])
+        .then(([resultWithAI, resultWithoutAI]) => {
+            const skuWithAI = resultWithAI.skus;
+            const skuWithoutAI = _.difference(resultWithoutAI.map((item) => item.sku), skuWithAI);
+            res.send({ skuWithAI, skuWithoutAI });
+        })
+        .catch(function (err) {
+            res.status(404).send(err.message);
+        });
+};
 
 const searchByText = (req, res) => {
     const { keyword } = req.query;
@@ -68,4 +93,5 @@ module.exports = {
     searchByText,
     searchByImage,
     recognizeAudio,
+    searchDemo,
 };
