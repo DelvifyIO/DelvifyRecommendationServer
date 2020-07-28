@@ -101,7 +101,7 @@ const getProductBySku = (req, res) => {
 
 const getProductBySkus = (req, res) => {
     const pagination = _.pick(req.query, paginations);
-    const skus = req.query.skus;
+    const skus = req.query.skus.split(',');
     _.each(_.keys(pagination), (key) => {
         pagination[key] = parseInt(pagination[key]);
     });
