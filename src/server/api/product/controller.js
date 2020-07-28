@@ -114,7 +114,7 @@ const getProductBySkus = (req, res) => {
             if (result) {
                 const products = result.rows;
                 products.sort((a, b) => _.indexOf(skus, a.sku) - _.indexOf(skus, b.sku));
-                res.send({ count: result.count, rows: products.splice(pagination.offset, pagination.limit)});
+                res.send({ count: result.count, rows: pagination.limit ? products.splice(pagination.offset, pagination.limit) : products });
             }
             else {
                 res.status(404).send('Not found');
