@@ -7,7 +7,7 @@ import {Op} from "sequelize";
 const searchDemo = (req, res) => {
     const { keyword } = req.query;
     const queryTokens = _.map(keyword.split(' '), (token) => `%${_.lowerCase(token)}%`);
-    const searchWithAI = fetch(`http://18.162.143.188:5000/fartekdelvify888/getSkusForQuery?query=${keyword}`).then((response) => response.json());
+    const searchWithAI = fetch(`http://13.67.88.182:5001/computeSimilarity?text=${keyword}`).then((response) => response.json());
     const searchWithoutAI = model.Product.findAll({
             where: {
                 [Op.and]: queryTokens.map((token) => ({ name: { [Op.like]: token } }))
@@ -28,7 +28,7 @@ const searchDemo = (req, res) => {
 const searchByText = (req, res) => {
     const { keyword } = req.query;
     if (keyword) {
-        fetch(`http://18.162.143.188:5000/fartekdelvify888/getSkusForQuery?query=${keyword}`)
+        fetch(`http://13.67.88.182:5001/computeSimilarity?text=${keyword}`)
             .then((response) => response.json())
             .then(response => {
                 res.send(response);
@@ -52,7 +52,7 @@ const searchByImage = (req, res) => {
                 },
         } };
 
-        request.post({ url: 'http://18.162.143.188:5000/fartekdelvify888/imageSearch', formData: formData }, (err, httpResponse, body) => {
+        request.post({ url: 'http://13.67.88.182:5000/get_imageskus/', formData: formData }, (err, httpResponse, body) => {
             if (err) {
                 return res.status(400).send(err.message);
             }
@@ -76,7 +76,7 @@ const recognizeAudio = (req, res) => {
                 },
         } };
 
-        request.post({ url: 'http://18.162.143.188:5000/fartekdelvify888/audioToText', formData: formData }, (err, httpResponse, body) => {
+        request.post({ url: 'http://18.162.113.148:3005/deepinfer', formData: formData }, (err, httpResponse, body) => {
             if (err) {
                 return res.status(400).send(err.message);
             }
