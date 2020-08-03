@@ -56,9 +56,14 @@ const searchByImage = (req, res) => {
             if (err) {
                 return res.status(400).send(err.message);
             }
-            const response = JSON.parse(body);
-            const result = response.skus.map((sku) => sku.split('.')[0]);
-            res.send({ skus: result });
+            try {
+                const response = JSON.parse(body);
+                const result = response.skus.map((sku) => sku.split('.')[0]);
+                res.send({ skus: result });
+            } catch (e) {
+                console.log(e);
+                res.status(400).send(body);
+            }
         })
     } else {
         res.status(400).send('No image');
