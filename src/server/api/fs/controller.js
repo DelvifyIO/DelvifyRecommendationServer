@@ -10,7 +10,7 @@ const resourceArn = process.env.RESOURCE_ARN;
 const secretArn = process.env.SECRET_ARN;
 const database = process.env.DATABASE;
 
-const rdsdataservice = new RDSDataService({apiVersion: '2018-08-01', region: 'us-east-1'});
+const rdsdataservice = new RDSDataService({apiVersion: '2018-08-01', region: 'us-east-1', accessKeyId: process.env.RDS_ACCESS_KEY, secretAccessKey: process.env.RDS_SECRET_ACCESS_KEY });
 
 const parseCatalog = async (req, res) => {
     const { userID } = req.params;
