@@ -38,6 +38,7 @@ app.use('/api', expressJwt({ secret: process.env.WEB_SECRET })
         '/api/engagement/item',
         /^\/api\/master\/register/,
         /^\/api\/master\/client/,
+        /^\/api\/fs/,
     ]}));
 
 // routes ==================================================
