@@ -166,8 +166,29 @@ const storeCatalog = async (req, res) => {
     }
 };
 
+const imageSearch = (req, res) => {
+    const { userID } = req.params;
+    if (!req.file) {
+        return res.status(400).send('No image');
+    }
+    const file = req.file;
+    const formData = { file: {
+            value: file.buffer,
+            options: {
+                filename: file.originalname
+            },
+        } };
+    request.post({ url: `http://18.162.143.188:5000/${userID}/imageSearch`, formData: formData }, (err, httpResponse, body) => {
+        if (err) {
+            return res.status(400).send(err.message);
+        }
+        res.send(body);
+    });
+};
+
 module.exports = {
     uploadCatalog,
     parseCatalog,
     storeCatalog,
+    imageSearch,
 };

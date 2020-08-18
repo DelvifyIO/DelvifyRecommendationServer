@@ -15,5 +15,6 @@ router.use(function(req, res, next) {
 router.post('/parseCatalog/:userID', upload.single('file'), controller.parseCatalog);
 router.post('/uploadCatalog/:userID', upload.single('file'), controller.uploadCatalog);
 router.post('/storeCatalog/:userID', upload.single('file'), controller.storeCatalog);
+router.post('/imageSearch/:userID', upload.single('image'), controller.imageSearch);
 
 module.exports = router;
