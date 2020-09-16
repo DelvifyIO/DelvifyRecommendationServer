@@ -4,10 +4,13 @@ import request from 'request';
 import model from "../../../db/models";
 import {Op} from "sequelize";
 
+const AI_API_HOST = "http://18.162.143.188:5000";
+const API_KEY = "c7c8af5e-65a8-4a42-832c-eee9c3eb4777";
+
 const searchDemo = (req, res) => {
     const { keyword } = req.query;
     const queryTokens = _.map(keyword.split(' '), (token) => `%${_.lowerCase(token)}%`);
-    const searchWithAI = fetch(`http://13.67.88.182:5001/computeSimilarity?text=${keyword}`).then((response) => response.json());
+    const searchWithAI = fetch(`${AI_API_HOST}/${API_KEY}/getSkusForQuery?query=${keyword}`).then((response) => response.json());
     const searchWithoutAI = model.Product.findAll({
             where: {
                 [Op.and]: queryTokens.map((token) => ({ name: { [Op.like]: token } }))
@@ -28,7 +31,7 @@ const searchDemo = (req, res) => {
 const searchByText = (req, res) => {
     const { keyword } = req.query;
     if (keyword) {
-        fetch(`http://13.67.88.182:5001/computeSimilarity?text=${keyword}`)
+        fetch(`${AI_API_HOST}/${API_KEY}/getSkusForQuery?query=${keyword}`)
             .then((response) => response.json())
             .then(response => {
                 res.send(response);
@@ -52,7 +55,7 @@ const searchByImage = (req, res) => {
                 },
         } };
 
-        request.post({ url: 'http://13.67.88.182:5000/get_imageskus/', formData: formData }, (err, httpResponse, body) => {
+        request.post({ url: `${AI_API_HOST}/${API_KEY}/imageSearch`, formData: formData }, (err, httpResponse, body) => {
             if (err) {
                 return res.status(400).send(err.message);
             }
@@ -81,7 +84,7 @@ const recognizeAudio = (req, res) => {
                 },
         } };
 
-        request.post({ url: 'http://18.162.113.148:3005/deepinfer', formData: formData }, (err, httpResponse, body) => {
+        request.post({ url: `${AI_API_HOST}/${API_KEY}/audioToText`, formData: formData }, (err, httpResponse, body) => {
             if (err) {
                 return res.status(400).send(err.message);
             }
