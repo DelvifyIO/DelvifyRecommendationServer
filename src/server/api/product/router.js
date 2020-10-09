@@ -12,5 +12,6 @@ router.use(function(req, res, next) {
 router.get('/', controller.getProducts);
 router.get('/search', controller.searchProducts);
 router.get('/:id', controller.getProduct);
+router.post('/', controller.getProductBySkus);
 
 module.exports = router;

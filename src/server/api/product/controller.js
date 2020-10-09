@@ -37,8 +37,6 @@ const searchProducts = (req, res) => {
 const getProducts = (req, res) => {
     if (req.query.sku) {
         return getProductBySku(req, res);
-    } else if (req.query.skus) {
-        return getProductBySkus(req, res);
     }
     const where = _.pick(req.query, queries);
     const pagination = _.pick(req.query, paginations);
@@ -101,7 +99,7 @@ const getProductBySku = (req, res) => {
 
 const getProductBySkus = (req, res) => {
     const pagination = _.pick(req.query, paginations);
-    const skus = req.query.skus.split(',');
+    const { skus } = req.body;
     _.each(_.keys(pagination), (key) => {
         pagination[key] = parseInt(pagination[key]);
     });
@@ -131,4 +129,5 @@ module.exports = {
     getProduct,
     getProductBySku,
     searchProducts,
+    getProductBySkus,
 };
