@@ -15,5 +15,6 @@ router.use(function(req, res, next) {
 router.get('/search', controller.searchByText);
 router.post('/search', upload.single('image'), controller.searchByImage);
 router.post('/recognize', upload.single('audio'), controller.recognizeAudio);
+router.get('/searchDemo', controller.searchDemo);
 
 module.exports = router;

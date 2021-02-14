@@ -37,8 +37,6 @@ const searchProducts = (req, res) => {
 const getProducts = (req, res) => {
     if (req.query.sku) {
         return getProductBySku(req, res);
-    } else if (req.query.skus) {
-        return getProductBySkus(req, res);
     }
     const where = _.pick(req.query, queries);
     const pagination = _.pick(req.query, paginations);
@@ -101,7 +99,7 @@ const getProductBySku = (req, res) => {
 
 const getProductBySkus = (req, res) => {
     const pagination = _.pick(req.query, paginations);
-    const skus = req.query.skus;
+    const { skus } = req.body;
     _.each(_.keys(pagination), (key) => {
         pagination[key] = parseInt(pagination[key]);
     });
@@ -114,7 +112,7 @@ const getProductBySkus = (req, res) => {
             if (result) {
                 const products = result.rows;
                 products.sort((a, b) => _.indexOf(skus, a.sku) - _.indexOf(skus, b.sku));
-                res.send({ count: result.count, rows: products.splice(pagination.offset, pagination.limit)});
+                res.send({ count: result.count, rows: pagination.limit ? products.splice(pagination.offset, pagination.limit) : products });
             }
             else {
                 res.status(404).send('Not found');
@@ -131,4 +129,5 @@ module.exports = {
     getProduct,
     getProductBySku,
     searchProducts,
+    getProductBySkus,
 };
